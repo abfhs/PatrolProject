@@ -1,0 +1,12 @@
+services:
+  postgres:
+    image: postgres:15  # PostgreSQL 15 버전의 Docker 이미지를 사용
+    restart: always  # 컨테이너가 중지되더라도 항상 재시작하도록 설정
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data  # 로컬 디렉토리(./postgres-data)를 컨테이너의 데이터 디렉토리와 연결하여 데이터 유지
+    ports:
+      - "5432:5432"  # 로컬 호스트의 5432 포트를 컨테이너의 5432 포트와 연결 (PostgreSQL 기본 포트)
+    environment:
+      POSTGRES_USER: postgres  # 데이터베이스 사용자 이름
+      POSTGRES_PASSWORD: postgres  # 데이터베이스 비밀번호
+      POSTGRES_DB: postgres  # 생성할 기본 데이터베이스 이름
