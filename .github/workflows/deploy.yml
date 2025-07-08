@@ -40,11 +40,38 @@ jobs:
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+          echo "IMAGE_URI=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_ENV
 
-      - name: Deploy to AWS App Runner
-        uses: awslabs/amazon-app-runner-deploy@v2
-        with:
-          service: ${{ env.APP_RUNNER_SERVICE_NAME }}
-          image: ${{ steps.build-image.outputs.image }}
-          wait-for-service-stability: true
+      - name: Check for existing App Runner service
+        id: check-service
+        run: |
+          SERVICE_ARN=$(aws apprunner list-services --query "ServiceSummaryList[?ServiceName=='${{ env.APP_RUNNER_SERVICE_NAME }}'].ServiceArn" --output text)
+          if [ -z "$SERVICE_ARN" ]; then
+            echo "Service does not exist. It will be created."
+            echo "exists=false" >> $GITHUB_OUTPUT
+          else
+            echo "Service exists. ARN: $SERVICE_ARN"
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "arn=$SERVICE_ARN" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create App Runner Service
+        if: steps.check-service.outputs.exists == 'false'
+        run: |
+          aws apprunner create-service --service-name ${{ env.APP_RUNNER_SERVICE_NAME }} \
+          --source-configuration '{
+            "ImageRepository": {
+              "ImageIdentifier": "${{ env.IMAGE_URI }}",
+              "ImageRepositoryType": "ECR",
+              "ImageConfiguration": { "Port": "3000" }
+            }
+          }' \
+          --instance-configuration '{
+            "Cpu": "1 vCPU", 
+            "Memory": "2 GB"
+          }' 
+
+      - name: Deploy to existing App Runner Service
+        if: steps.check-service.outputs.exists == 'true'
+        run: |
+          aws apprunner start-deployment --service-arn ${{ steps.check-service.outputs.arn }}
