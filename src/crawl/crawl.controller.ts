@@ -15,8 +15,8 @@ export class CrawlController {
     res.redirect(302, '/main.html');
   }
 
-  @Post()
-  @UseGuards(AccessTokenGuard)
+  @Post('')
+  // @UseGuards(AccessTokenGuard)
   jusoChuri(
     @Body('address') address: string,
     @Body('name') name: string,
