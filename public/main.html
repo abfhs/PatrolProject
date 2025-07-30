@@ -112,6 +112,162 @@
       background: #ffca2c;
       box-shadow: 0 0 15px rgba(255,193,7,0.5);
     }
+
+    .result-section {
+      margin-top: 30px;
+      width: 100%;
+      display: none;
+    }
+
+    .result-header {
+      color: #ffc107;
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+
+    .address-list {
+      background: rgba(50, 50, 50, 0.7);
+      border-radius: 10px;
+      max-height: 300px;
+      overflow-y: auto;
+      padding: 15px;
+    }
+
+    .address-item {
+      background: rgba(70, 70, 70, 0.8);
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 10px;
+      border-left: 3px solid #ffc107;
+      transition: all 0.3s ease;
+    }
+
+    .address-item:hover {
+      background: rgba(90, 90, 90, 0.8);
+      transform: translateX(5px);
+    }
+
+    .address-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .address-detail {
+      font-size: 0.95rem;
+      color: #fff;
+      margin-bottom: 5px;
+      line-height: 1.4;
+    }
+
+    .address-pin {
+      font-size: 0.85rem;
+      color: #ffc107;
+      font-weight: 500;
+    }
+
+    .no-results {
+      text-align: center;
+      color: rgba(255, 255, 255, 0.7);
+      padding: 20px;
+      font-style: italic;
+    }
+
+    .name-input-section {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255, 193, 7, 0.3);
+      display: none;
+    }
+
+    .name-input-container {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .name-input {
+      flex: 1;
+      padding: 12px 15px;
+      border: none;
+      border-radius: 10px;
+      background: rgba(50, 50, 50, 0.7);
+      font-size: 1rem;
+      color: #fff;
+      outline: none;
+      transition: background 0.3s;
+      box-sizing: border-box;
+    }
+
+    .name-input::placeholder {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .name-input:focus {
+      background: rgba(80, 80, 80, 0.7);
+    }
+
+    .check-btn {
+      padding: 12px 20px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+      background: #ffc107;
+      color: #000;
+      white-space: nowrap;
+    }
+
+    .check-btn:hover {
+      background: #ffca2c;
+      box-shadow: 0 0 15px rgba(255,193,7,0.5);
+    }
+
+    .check-btn:disabled {
+      background: rgba(255, 193, 7, 0.5);
+      cursor: not-allowed;
+    }
+
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .loading-content {
+      text-align: center;
+      color: #fff;
+    }
+
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 3px solid rgba(255, 193, 7, 0.3);
+      border-top: 3px solid #ffc107;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #ffc107;
+    }
   </style>
 </head>
 <body>
@@ -123,10 +279,22 @@
       <div class="input-area">
         <input type="text" id="address" name="address" placeholder="Address" required />
       </div>
-      <div class="input-area">
-        <input type="text" id="owner" name="owner" placeholder="Landlord/Owner Name" required />
-      </div>
       <button type="submit" class="submit-btn">Submit</button>
+      
+      <div class="result-section" id="resultSection">
+        <div class="result-header">검색 결과</div>
+        <div class="address-list" id="addressList">
+          <div class="no-results">검색 결과가 없습니다.</div>
+        </div>
+        
+        <div class="name-input-section" id="nameInputSection">
+          <div class="result-header">이름 입력</div>
+          <div class="name-input-container">
+            <input type="text" class="name-input" id="nameInput" placeholder="이름을 입력하세요" />
+            <button type="button" class="check-btn" id="checkBtn">확인</button>
+          </div>
+        </div>
+      </div>
     </form>
   </div>
 
@@ -143,7 +311,6 @@
         e.preventDefault();
 
         const address = document.getElementById('address').value;
-        const ownerName = document.getElementById('owner').value;
         const accessToken = localStorage.getItem('accessToken');
 
         if (!accessToken) {
@@ -153,13 +320,15 @@
         }
 
         try {
-            const response = await fetch('http://localhost:3000/crawl/info', {
+            showLoading();
+            
+            const response = await fetch('http://localhost:3000/crawl/find', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${accessToken}`
                 },
-                body: JSON.stringify({ address, ownerName })
+                body: JSON.stringify({ address })
             });
 
             if (!response.ok) {
@@ -168,14 +337,223 @@
             }
 
             const result = await response.json();
-            alert('정보가 성공적으로 제출되었습니다.');
-            // 성공 후 다음 동작 (예: 페이지 새로고침 또는 다른 페이지로 이동)
-            // window.location.reload(); 
+            
+            // Store session data for crawling
+            if (result.crypted_id) {
+                localStorage.setItem('crypted_id', result.crypted_id);
+            }
+            if (result.id) {
+                localStorage.setItem('user_id', result.id);
+            }
+            if (result.cookieString) {
+                localStorage.setItem('cookieString', result.cookieString);
+            }
+            
+            displayResults(result);
+            alert('정보가 성공적으로 제출되었습니다.'); 
         } catch (error) {
             console.error('Submit error:', error);
             alert(`오류: ${error.message}`);
+        } finally {
+            hideLoading();
+        }
+    });
+
+    async function startProcessCrawl(addressData) {
+        const accessToken = localStorage.getItem('accessToken');
+        const crypted_id = localStorage.getItem('crypted_id');
+        const user_id = localStorage.getItem('user_id');
+        const cookieString = localStorage.getItem('cookieString');
+
+        if (!accessToken || !crypted_id || !user_id || !cookieString) {
+            alert('세션 정보가 없습니다. 다시 주소를 검색해주세요.');
+            return;
+        }
+
+        try {
+            showLoading();
+            
+            const response = await fetch('http://localhost:3000/crawl/findProcess', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${accessToken}`
+                },
+                body: JSON.stringify({
+                    real_indi_cont_detail: addressData.real_indi_cont_detail,
+                    crypted_id: crypted_id,
+                    id: user_id,
+                    cookieString: cookieString,
+                    pin: addressData.pin
+                })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || '프로세스 크롤링에 실패했습니다.');
+            }
+
+            const result = await response.json();
+            console.log('Process crawl result:', result);
+            
+            // Hide address list and show process result with name input
+            document.getElementById('resultSection').style.display = 'none';
+            displayProcessResult(result, addressData);
+            document.getElementById('nameInputSection').style.display = 'block';
+            
+            alert('프로세스 크롤링이 완료되었습니다.');
+        } catch (error) {
+            console.error('Process crawl error:', error);
+            alert(`오류: ${error.message}`);
+        } finally {
+            hideLoading();
+        }
+    }
+
+    function displayProcessResult(data, originalAddressData) {
+        const resultSection = document.getElementById('resultSection');
+        const addressList = document.getElementById('addressList');
+        
+        // Get real_indi_cont_detail from the original address data that was clicked
+        const realIndiContDetail = originalAddressData.real_indi_cont_detail || localStorage.getItem('real_indi_cont_detail') || 'N/A';
+        
+        addressList.innerHTML = `
+            <div class="address-item">
+                <div class="address-detail">부동산 고유번호: ${data.a301pin || 'N/A'}</div>
+                <div class="address-detail">부동산 소재지번: ${realIndiContDetail}</div>
+                <div class="address-detail">소유자: ${data.a318nomprs_name || 'N/A'}</div>
+                <div class="address-detail">등기상태: ${data.a301use_cls_cd_nm || 'N/A'}</div>
+            </div>
+        `;
+        
+        resultSection.style.display = 'block';
+    }
+
+    function displayResults(data) {
+        const resultSection = document.getElementById('resultSection');
+        const addressList = document.getElementById('addressList');
+        
+        if (data && data.addressList && data.addressList.length > 0) {
+            // Clear existing content
+            addressList.innerHTML = '';
+            
+            // Create address items
+            data.addressList.forEach(address => {
+                const addressItem = document.createElement('div');
+                addressItem.className = 'address-item';
+                
+                addressItem.innerHTML = `
+                    <div class="address-detail">${address.real_indi_cont_detail}</div>
+                    <div class="address-pin">PIN: ${address.pin}</div>
+                `;
+                
+                // Add click event listener for process crawling
+                addressItem.addEventListener('click', () => {
+                    // Store address data in localStorage before crawling
+                    localStorage.setItem('real_indi_cont_detail', address.real_indi_cont_detail);
+                    localStorage.setItem('pin', address.pin);
+                    startProcessCrawl(address);
+                });
+                
+                addressList.appendChild(addressItem);
+            });
+            
+            // Show the result section but hide name input initially
+            resultSection.style.display = 'block';
+            document.getElementById('nameInputSection').style.display = 'none';
+        } else {
+            // Show no results message
+            addressList.innerHTML = '<div class="no-results">검색 결과가 없습니다.</div>';
+            resultSection.style.display = 'block';
+        }
+    }
+
+    async function checkProcess(name) {
+        const accessToken = localStorage.getItem('accessToken');
+        const crypted_id = localStorage.getItem('crypted_id');
+        const user_id = localStorage.getItem('user_id');
+        const cookieString = localStorage.getItem('cookieString');
+        const real_indi_cont_detail = localStorage.getItem('real_indi_cont_detail');
+        const pin = localStorage.getItem('pin');
+
+        if (!accessToken || !crypted_id || !user_id || !cookieString || !real_indi_cont_detail || !pin) {
+            alert('세션 정보가 없습니다. 다시 주소를 검색해주세요.');
+            return;
+        }
+
+        try {
+            showLoading();
+            
+            const response = await fetch('http://localhost:3000/crawl/checkProcess', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${accessToken}`
+                },
+                body: JSON.stringify({
+                    real_indi_cont_detail: real_indi_cont_detail,
+                    crypted_id: crypted_id,
+                    id: user_id,
+                    cookieString: cookieString,
+                    pin: pin,
+                    name: name
+                })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || '프로세스 확인에 실패했습니다.');
+            }
+
+            const result = await response.json();
+            console.log('Check process result:', result);
+            
+            alert('프로세스 확인이 완료되었습니다.');
+        } catch (error) {
+            console.error('Check process error:', error);
+            alert(`오류: ${error.message}`);
+        } finally {
+            hideLoading();
+        }
+    }
+
+    function showLoading() {
+        document.getElementById('loadingOverlay').style.display = 'flex';
+    }
+
+    function hideLoading() {
+        document.getElementById('loadingOverlay').style.display = 'none';
+    }
+
+    // Add event listener for check button
+    document.addEventListener('DOMContentLoaded', () => {
+        const checkBtn = document.getElementById('checkBtn');
+        const nameInput = document.getElementById('nameInput');
+        
+        if (checkBtn && nameInput) {
+            checkBtn.addEventListener('click', () => {
+                const name = nameInput.value.trim();
+                if (!name) {
+                    alert('이름을 입력해주세요.');
+                    return;
+                }
+                checkProcess(name);
+            });
+
+            // Enter key event for name input
+            nameInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    checkBtn.click();
+                }
+            });
         }
     });
   </script>
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-content">
+      <div class="spinner"></div>
+      <div class="loading-text">로딩중입니다</div>
+    </div>
+  </div>
 </body>
 </html>

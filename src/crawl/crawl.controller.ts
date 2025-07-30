@@ -15,14 +15,45 @@ export class CrawlController {
     res.redirect(302, '/main.html');
   }
 
-  @Post('')
+  @Post('find')
   // @UseGuards(AccessTokenGuard)
-  jusoChuri(
+  findAddress(
     @Body('address') address: string,
-    @Body('name') name: string,
   ){
-    return this.crawlService.churiProcess(
-      address, name
+    return this.crawlService.findAddress(
+      address
     )
   }
+
+  @Post('findProcess')
+  // @UseGuards(AccessTokenGuard)
+  findProcess(
+    @Body('real_indi_cont_detail') real_indi_cont_detail: string,
+    @Body('crypted_id') crypted_id: string,
+    @Body('id') id: string,
+    @Body('cookieString') cookieString: string,
+    @Body('pin') pin: string,
+  ){
+    return this.crawlService.findProcess(
+      real_indi_cont_detail, crypted_id, id, cookieString, pin
+    )
+  }
+
+  @Post('checkProcess')
+  // @UseGuards(AccessTokenGuard)
+  checkProcess(
+    @Body('real_indi_cont_detail') real_indi_cont_detail: string,
+    @Body('crypted_id') crypted_id: string,
+    @Body('id') id: string,
+    @Body('cookieString') cookieString: string,
+    @Body('pin') pin: string,
+    @Body('name') name: string,
+  ){
+    return this.crawlService.checkProcess(
+      real_indi_cont_detail, crypted_id, id, cookieString, pin, name
+    )
+  }
+
+
+
 }
