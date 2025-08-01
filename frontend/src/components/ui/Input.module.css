@@ -1,0 +1,37 @@
+.inputArea {
+  width: 100%;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.input {
+  width: 100%;
+  padding: 12px 15px;
+  border: none;
+  border-radius: 10px;
+  background: var(--background-input);
+  font-size: 1rem;
+  color: var(--text-primary);
+  outline: none;
+  transition: background 0.3s;
+  box-sizing: border-box;
+}
+
+.input::placeholder {
+  color: var(--text-secondary);
+}
+
+.input:focus {
+  background: var(--background-input-focus);
+}
+
+.inputContainer {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.inputContainer .input {
+  flex: 1;
+  margin-bottom: 0;
+}

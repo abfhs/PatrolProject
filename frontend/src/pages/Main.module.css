@@ -1,0 +1,72 @@
+.resultSection {
+  margin-top: 30px;
+  width: 100%;
+}
+
+.resultHeader {
+  color: var(--primary-color);
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.addressList {
+  background: var(--background-input);
+  border-radius: 10px;
+  max-height: 300px;
+  overflow-y: auto;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.addressItem {
+  background: rgba(70, 70, 70, 0.8);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 10px;
+  border-left: 3px solid var(--primary-color);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.addressItem:hover {
+  background: rgba(90, 90, 90, 0.8);
+  transform: translateX(5px);
+}
+
+.addressItem:last-child {
+  margin-bottom: 0;
+}
+
+.addressDetail {
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  margin-bottom: 5px;
+  line-height: 1.4;
+}
+
+.addressPin {
+  font-size: 0.85rem;
+  color: var(--primary-color);
+  font-weight: 500;
+}
+
+.noResults {
+  text-align: center;
+  color: var(--text-secondary);
+  padding: 20px;
+  font-style: italic;
+}
+
+.nameInputSection {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 193, 7, 0.3);
+}
+
+.nameInputContainer {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}

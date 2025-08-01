@@ -1,0 +1,29 @@
+.header {
+  position: absolute;
+  top: 30px;
+  left: 40px;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
+  z-index: 10;
+}
+
+.myPageBtn {
+  position: absolute;
+  top: 35px;
+  right: 40px;
+  padding: 10px 20px;
+  background: transparent;
+  color: var(--primary-color);
+  border: 1px solid var(--primary-color);
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  z-index: 10;
+}
+
+.myPageBtn:hover {
+  background: rgba(255, 193, 7, 0.1);
+}

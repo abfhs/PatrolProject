@@ -54,10 +54,7 @@ export class CrawlService {
 
     var crypted_id = resultData.crypted_id;
 
-    // 주소검색
-    address = '서울특별시관악구남부순환로1990-3'
-
-    
+    // 주소검색 
     headers.submissionid = 'mf_wfm_potal_main_wfm_content_popup' + unixTimestamp + '_wframe_sbm_Pr10AwrtApplRealInputCtrl_retrieveSmplSrch'
     bodyJson = {
       "websquare_param": {
@@ -118,80 +115,6 @@ export class CrawlService {
 
 
     }
-
-    /**
-     * 스크래핑테스트
-     */
-  //   var headers: any = {
-  //     "Host": "www.iros.go.kr",
-  //     "User-Agent": userAgent,
-  //     "Accept": "application/json",
-  //     "Accept-Language": "ko-KR,ko;q=0.8,en-US;q=0.5,en;q=0.3",
-  //     "Accept-Encoding": "gzip, deflate, br, zstd",
-  //     "Referer": "https://www.iros.go.kr/index.jsp",
-  //     "Content-Type": "application/json; charset=\"UTF-8\"",
-  //     "submissionid": "mf_wfm_potal_main_wfm_content_sbm_Pr10SprtApplCsprCsInqCtrl_retrieveRealAdrno",
-  //     "Origin": "https://www.iros.go.kr",
-  //     "Connection": "keep-alive",
-  //     "Priority": "u=0"
-  //   }
-
-  //   var bodyJson : any;
-
-  //   bodyJson ={
-  //     "websquare_param": {
-  //       "pin": '11012023012914',
-  //       "addrCls": 3,
-  //       "real_indi_cont": '서울특별시 관악구 남부순환로 1990-3 닷컴힐즈 제2층 제201호 [봉천동 1653-1]',
-  //       "real_cls": "",
-  //       "search_cls": ""
-  //     }
-  //   }
-  //   var url =  this.hostUrl + "/biz/Pr10SprtApplCsprCsInqCtrl/retrieveRealAdrno.do?CRYPTED_ID__=" + crypted_id + "&USER_ID__=" + id + "&IS_NMBR_LOGIN__=null";
-  //   var resultData = await this.fetchData('post', url, headers, bodyJson);
-
-  //   bodyJson = {
-  //   "websquare_param": {
-  //     "addrCls": 3,
-  //     "a103Name": "박수련",
-  //     "nameType": "2",
-  //     "a105pin": "11012023012914",
-  //     "regt_no": "",
-  //     "regt_ver": "",
-  //     "search_cls": "109",
-  //     "pass": ""
-  //   },
-  //   "smplData": {
-  //     "pin": "11012023012914",
-  //     "addrCls": 3,
-  //     "real_indi_cont": "서울특별시 관악구 남부순환로 1990-3 닷컴힐즈 제2층 제201호 [봉천동 1653-1]",
-  //     "real_cls": "",
-  //     "search_cls": "109"
-  //   },
-  //   "addrData": {
-  //     "selKindCls": "",
-  //     "real_cls": "",
-  //     "admin_regn1": "",
-  //     "admin_regn2": "",
-  //     "admin_regn3": "",
-  //     "lot_no": "",
-  //     "buld_name": "",
-  //     "buld_no_buld": "",
-  //     "buld_no_room": "",
-  //     "rd_name": "",
-  //     "rd_buld_no": "",
-  //     "txt_addr_cls": "",
-  //     "close_cls": "",
-  //     "search_cls": "",
-  //     "admin_regn1_cd": ""
-  //   }
-  // }
-  //   headers.submissionid = 'mf_wfm_potal_main_wfm_content_sbm_Pr10SprtApplCsprCsInqCtrl_retrieveApplCsprCsList';
-  //   var url =  this.hostUrl + "/biz/Pr10SprtApplCsprCsInqCtrl/retrieveApplCsprCsList.do?CRYPTED_ID__=" + crypted_id + "&USER_ID__=" + id + "&IS_NMBR_LOGIN__=null&IS_NMBR_LOGIN__=null";
-  //   var resultData = await this.fetchData('post', url, headers, bodyJson);
-
-
-
 
     var cookieString: string = this.cookieString;
 
