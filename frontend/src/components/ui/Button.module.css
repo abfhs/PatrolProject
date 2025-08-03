@@ -1,11 +1,11 @@
 .button {
-  padding: 14px 20px;
-  margin-top: 10px;
+  padding: 18px 25px;
+  margin-top: 15px;
   border: none;
-  border-radius: 10px;
+  border-radius: 12px;
   cursor: pointer;
   font-weight: 600;
-  font-size: 1rem;
+  font-size: 1.1rem;
   transition: all 0.3s ease;
   text-transform: uppercase;
   text-align: center;
@@ -50,4 +50,14 @@
 .inline {
   margin-top: 0;
   width: auto;
+}
+
+/* 모바일에서는 원래 크기 유지 */
+@media (max-width: 768px) {
+  .button {
+    padding: 14px 20px;
+    margin-top: 10px;
+    font-size: 1rem;
+    border-radius: 10px;
+  }
 }

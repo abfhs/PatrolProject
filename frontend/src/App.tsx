@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { Login, Register, Main } from './pages';
+import { Login, Register, Main, MyPage } from './pages';
 import './styles/globals.css';
 
 function App() {
@@ -9,6 +9,7 @@ function App() {
         <Route path="/" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/main" element={<Main />} />
+        <Route path="/mypage" element={<MyPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>

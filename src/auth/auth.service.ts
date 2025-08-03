@@ -167,10 +167,15 @@ export class AuthService {
         })
     }
 
-    loginUser(user: Pick<UsersModel, 'email'| 'id'>){
+    loginUser(user: Pick<UsersModel, 'email'| 'id' | 'nickname'>){
         return {
             accessToken: this.signToken(user, false),
             refreshToken: this.signToken(user, true),
+            user: {
+                email: user.email,
+                nickname: user.nickname,
+                id: user.id,
+            }
         }
     }
 

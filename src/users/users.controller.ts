@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Param, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
 
 @Controller('users')
@@ -20,5 +20,18 @@ export class UsersController {
       email,
       password,
     });
+  }
+
+  @Post('add-result')
+  addUserResult(
+    @Body('email') email: string,
+    @Body('result') result: any,
+  ){
+    return this.usersService.addUserResult(email, result);
+  }
+
+  @Get('results/:email')
+  getUserResults(@Param('email') email: string){
+    return this.usersService.getUserResults(email);
   }
 }

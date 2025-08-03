@@ -1,16 +1,16 @@
 .inputArea {
   width: 100%;
-  margin-bottom: 20px;
+  margin-bottom: 25px;
   position: relative;
 }
 
 .input {
   width: 100%;
-  padding: 12px 15px;
+  padding: 16px 20px;
   border: none;
-  border-radius: 10px;
+  border-radius: 12px;
   background: var(--background-input);
-  font-size: 1rem;
+  font-size: 1.1rem;
   color: var(--text-primary);
   outline: none;
   transition: background 0.3s;
@@ -34,4 +34,17 @@
 .inputContainer .input {
   flex: 1;
   margin-bottom: 0;
+}
+
+/* 모바일에서는 원래 크기 유지 */
+@media (max-width: 768px) {
+  .input {
+    padding: 12px 15px;
+    font-size: 1rem;
+    border-radius: 10px;
+  }
+
+  .inputArea {
+    margin-bottom: 20px;
+  }
 }

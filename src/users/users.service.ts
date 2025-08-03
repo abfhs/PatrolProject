@@ -55,4 +55,36 @@ export class UsersService {
             },
         })
     }
+
+    async addUserResult(email: string, result: any){
+        const user = await this.getUserByEmail(email);
+        if (!user) {
+            throw new BadGatewayException('사용자를 찾을 수 없습니다.');
+        }
+
+        // result가 null이거나 undefined인 경우 빈 배열로 초기화
+        if (!user.result) {
+            user.result = [];
+        }
+
+        // 새로운 결과를 배열에 추가 (타임스탬프와 함께)
+        const resultWithTimestamp = {
+            ...result,
+            timestamp: new Date().toISOString(),
+            id: Date.now() // 간단한 ID 생성
+        };
+
+        user.result.push(resultWithTimestamp);
+        return await this.userRepository.save(user);
+    }
+
+    async getUserResults(email: string){
+        const user = await this.getUserByEmail(email);
+        if (!user) {
+            throw new BadGatewayException('사용자를 찾을 수 없습니다.');
+        }
+
+        return user.result || [];
+    }
+
 }

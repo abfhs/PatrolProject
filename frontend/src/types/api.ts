@@ -13,6 +13,11 @@ export interface RegisterRequest {
 export interface AuthResponse {
   accessToken: string;
   refreshToken: string;
+  user: {
+    email: string;
+    nickname: string;
+    id: number;
+  };
 }
 
 // Crawl types
@@ -87,6 +92,24 @@ export interface CheckProcessResponse {
   a101recv_gb?: string;
   a101appl_cls_cd?: string;
   a131enr_no_cls_cd_cnt?: number;
+}
+
+// Schedule types
+export interface CreateScheduleRequest {
+  addressPin: string;
+  ownerName: string;
+  email: string;
+  address: string;
+}
+
+export interface ScheduleResponse {
+  id: number;
+  addressPin: string;
+  ownerName: string;
+  email: string;
+  address: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 // Generic API response

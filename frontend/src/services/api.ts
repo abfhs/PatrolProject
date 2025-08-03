@@ -9,7 +9,9 @@ import type {
   FindProcessRequest,
   ProcessResult,
   CheckProcessRequest,
-  CheckProcessResponse
+  CheckProcessResponse,
+  CreateScheduleRequest,
+  ScheduleResponse
 } from '../types/api';
 
 class ApiClient {
@@ -26,9 +28,12 @@ class ApiClient {
 
     // Request interceptor to add auth token
     this.client.interceptors.request.use((config) => {
-      const token = localStorage.getItem('accessToken');
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
+      // 로그인/회원가입 요청에서는 Bearer 토큰을 추가하지 않음
+      if (!config.skipAuthInterceptor) {
+        const token = localStorage.getItem('accessToken');
+        if (token && !config.headers.Authorization) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
       }
       return config;
     });
@@ -57,6 +62,8 @@ class ApiClient {
         headers: {
           Authorization: `Basic ${token}`,
         },
+        // 로그인 요청에서는 인터셉터의 Bearer 토큰을 무시
+        skipAuthInterceptor: true,
       }
     );
     return response.data;
@@ -65,7 +72,11 @@ class ApiClient {
   async register(userData: RegisterRequest): Promise<AuthResponse> {
     const response: AxiosResponse<AuthResponse> = await this.client.post(
       '/auth/register/email',
-      userData
+      userData,
+      {
+        // 회원가입 요청에서는 인터셉터의 Bearer 토큰을 무시
+        skipAuthInterceptor: true,
+      }
     );
     return response.data;
   }
@@ -91,6 +102,56 @@ class ApiClient {
     const response: AxiosResponse<CheckProcessResponse> = await this.client.post(
       '/crawl/checkProcess',
       request
+    );
+    return response.data;
+  }
+
+  // User result methods
+  async addUserResult(email: string, result: any): Promise<any> {
+    const response: AxiosResponse<any> = await this.client.post(
+      '/users/add-result',
+      { email, result }
+    );
+    return response.data;
+  }
+
+  async getUserResults(email: string): Promise<any[]> {
+    const response: AxiosResponse<any[]> = await this.client.get(
+      `/users/results/${email}`
+    );
+    return response.data;
+  }
+
+  // Schedule methods
+  async createSchedule(scheduleData: CreateScheduleRequest): Promise<ScheduleResponse> {
+    const response: AxiosResponse<ScheduleResponse> = await this.client.post(
+      '/schedule',
+      scheduleData
+    );
+    return response.data;
+  }
+
+  async getSchedules(): Promise<ScheduleResponse[]> {
+    const response: AxiosResponse<ScheduleResponse[]> = await this.client.get(
+      '/schedule'
+    );
+    return response.data;
+  }
+
+  async getSchedulesByEmail(email: string): Promise<ScheduleResponse[]> {
+    const response: AxiosResponse<ScheduleResponse[]> = await this.client.get(
+      `/schedule/email/${email}`
+    );
+    return response.data;
+  }
+
+  async deleteSchedule(id: number): Promise<void> {
+    await this.client.delete(`/schedule/${id}`);
+  }
+
+  async runScheduleManually(): Promise<{ message: string }> {
+    const response: AxiosResponse<{ message: string }> = await this.client.post(
+      '/schedule/run-manual'
     );
     return response.data;
   }

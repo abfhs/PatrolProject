@@ -44,4 +44,11 @@ export class UsersModel extends BaseModel {
     })
     role: RolesEnum;
 
+    @Column({
+        type: 'json',
+        nullable: true,
+        default: () => "'[]'", // 빈 배열로 초기화
+    })
+    result: any[];
+
 }

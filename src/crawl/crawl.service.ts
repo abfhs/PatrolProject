@@ -247,7 +247,9 @@ export class CrawlService {
       throw new BadGatewayException('인터넷등기소 사이트 변경, 확인필요') 
     }
 
-    return resultData.applCsprCsList[0];
+    const response = resultData.applCsprCsList[0];
+
+    return response;
   }
 
   async fetchData(

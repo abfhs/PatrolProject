@@ -1,0 +1,46 @@
+수정이후 프로젝트를 동작시켰는데 아래 에러가 발생하고 있어. 확인해서 수정해줘.
+
+[Nest] 19644  - 2025. 08. 04. 오전 12:31:11     LOG [NestFactory] Starting Nest application...
+[Nest] 19644  - 2025. 08. 04. 오전 12:31:12     LOG [InstanceLoader] TypeOrmModule dependencies initialized +74ms
+[Nest] 19644  - 2025. 08. 04. 오전 12:31:12     LOG [InstanceLoader] JwtModule dependencies initialized +1ms
+[Nest] 19644  - 2025. 08. 04. 오전 12:31:12     LOG [InstanceLoader] ConfigHostModule dependencies initialized +1ms
+[Nest] 19644  - 2025. 08. 04. 오전 12:31:12     LOG [InstanceLoader] AppModule dependencies initialized +0ms
+[Nest] 19644  - 2025. 08. 04. 오전 12:31:12     LOG [InstanceLoader] CommonModule dependencies initialized +1ms
+[Nest] 19644  - 2025. 08. 04. 오전 12:31:12     LOG [InstanceLoader] DiscoveryModule dependencies initialized +0ms
+[Nest] 19644  - 2025. 08. 04. 오전 12:31:12     LOG [InstanceLoader] ServeStaticModule dependencies initialized +0ms
+[Nest] 19644  - 2025. 08. 04. 오전 12:31:12     LOG [InstanceLoader] ConfigModule dependencies initialized +1ms
+[Nest] 19644  - 2025. 08. 04. 오전 12:31:12     LOG [InstanceLoader] ScheduleModule dependencies initialized +0ms
+[Nest] 19644  - 2025. 08. 04. 오전 12:31:12     LOG [InstanceLoader] TypeOrmCoreModule dependencies initialized +116ms
+[Nest] 19644  - 2025. 08. 04. 오전 12:31:12     LOG [InstanceLoader] TypeOrmModule dependencies initialized +1ms
+[Nest] 19644  - 2025. 08. 04. 오전 12:31:12     LOG [InstanceLoader] TypeOrmModule dependencies initialized +0ms
+[Nest] 19644  - 2025. 08. 04. 오전 12:31:12     LOG [InstanceLoader] UsersModule dependencies initialized +3ms
+[Nest] 19644  - 2025. 08. 04. 오전 12:31:12   ERROR [ExceptionHandler] Nest can't resolve dependencies of the AccessTokenGuard (AuthService, ?). Please make sure that the argument UsersService at index [1] is available in the ScheduleModule context.
+
+Potential solutions:
+- Is ScheduleModule a valid NestJS module?
+- If UsersService is a provider, is it part of the current ScheduleModule?
+- If UsersService is exported from a separate @Module, is that module imported within ScheduleModule?
+  @Module({
+    imports: [ /* the Module containing UsersService */ ]
+  })
+
+Error: Nest can't resolve dependencies of the AccessTokenGuard (AuthService, ?). Please make sure that the argument UsersService at index [1] is available in the ScheduleModule context.
+
+Potential solutions:
+- Is ScheduleModule a valid NestJS module?
+- If UsersService is a provider, is it part of the current ScheduleModule?
+- If UsersService is exported from a separate @Module, is that module imported within ScheduleModule?
+  @Module({
+    imports: [ /* the Module containing UsersService */ ]
+  })
+
+    at Injector.lookupComponentInParentModules (C:\Users\rkdwn\Desktop\patrol\node_modules\@nestjs\core\injector\injector.js:262:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Injector.resolveComponentInstance (C:\Users\rkdwn\Desktop\patrol\node_modules\@nestjs\core\injector\injector.js:215:33)
+    at async resolveParam (C:\Users\rkdwn\Desktop\patrol\node_modules\@nestjs\core\injector\injector.js:129:38)
+    at async Promise.all (index 1)
+    at async Injector.resolveConstructorParams (C:\Users\rkdwn\Desktop\patrol\node_modules\@nestjs\core\injector\injector.js:144:27)
+    at async Injector.loadInstance (C:\Users\rkdwn\Desktop\patrol\node_modules\@nestjs\core\injector\injector.js:70:13)
+    at async Injector.loadInjectable (C:\Users\rkdwn\Desktop\patrol\node_modules\@nestjs\core\injector\injector.js:94:9)
+    at async C:\Users\rkdwn\Desktop\patrol\node_modules\@nestjs\core\injector\instance-loader.js:80:13
+    at async Promise.all (index 0)

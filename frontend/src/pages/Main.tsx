@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Layout } from '../components/layout/Layout';
 import { Card, Button, Input, Loading } from '../components/ui';
 import { useCrawl } from '../hooks/useCrawl';
+import { apiClient } from '../services/api';
 import type { AddressItem, CheckProcessResponse } from '../types/api';
 import styles from './Main.module.css';
 
@@ -13,6 +14,10 @@ export const Main = () => {
   const [showResults, setShowResults] = useState(false);
   const [showNameInput, setShowNameInput] = useState(false);
   const [processCompleted, setProcessCompleted] = useState(false);
+  const [isFormHiding, setIsFormHiding] = useState(false);
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [checkProcessCompleted, setCheckProcessCompleted] = useState(false);
+  const [showSaveOption, setShowSaveOption] = useState(false);
   
   const navigate = useNavigate();
   const { findAddress, findProcess, checkProcess, addressList, processResult, checkProcessResult, isLoading, error } = useCrawl();
@@ -57,11 +62,21 @@ export const Main = () => {
     
     try {
       await findAddress(address);
-      setShowResults(true);
-      setShowNameInput(false);
-      setProcessCompleted(false);
+      
+      // 검색 성공 애니메이션 시작
+      setIsFormHiding(true);
+      setShowSuccessMessage(true);
+      
+      // 2초 후 결과 표시
+      setTimeout(() => {
+        setShowSuccessMessage(false);
+        setShowResults(true);
+        setShowNameInput(false);
+        setProcessCompleted(false);
+      }, 2000);
     } catch (error) {
       // Error handling is done in the hook
+      setIsFormHiding(false);
     }
   };
 
@@ -83,11 +98,14 @@ export const Main = () => {
     }
 
     try {
-      const result = await checkProcess(name);
-      console.log('CheckProcess result:', result);
-      console.log('CheckProcessResult state:', checkProcessResult);
+      // 이름을 브라우저 DB에 ownerName으로 저장
+      localStorage.setItem('ownerName', name.trim());
+      
+      await checkProcess(name);
+      // 성공 시 checkProcess 완료 상태로 변경
+      setCheckProcessCompleted(true);
+      setShowSaveOption(true);
     } catch (error) {
-      console.error('CheckProcess error:', error);
       // Error handling is done in the hook
     }
   };
@@ -98,22 +116,89 @@ export const Main = () => {
     }
   };
 
+  const handleSaveResult = async () => {
+    try {
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      if (!user.email) {
+        alert('로그인 정보가 없습니다.');
+        return;
+      }
+
+      // localStorage에서 필요한 데이터 수집
+      const addressPin = localStorage.getItem('pin');
+      const ownerName = localStorage.getItem('ownerName');
+      const address = localStorage.getItem('real_indi_cont_detail');
+
+      // 필수 데이터 검증
+      if (!addressPin || !ownerName || !address) {
+        alert('저장에 필요한 정보가 부족합니다. 다시 검색해주세요.');
+        return;
+      }
+
+      // ScheduleModel에 저장 (스케줄링을 위한 데이터)
+      const scheduleData = {
+        addressPin,
+        ownerName,
+        email: user.email,
+        address,
+      };
+
+      // 두 가지 저장 작업을 병렬로 수행
+      await Promise.all([
+        apiClient.createSchedule(scheduleData),
+        apiClient.addUserResult(user.email, checkProcessResult)
+      ]);
+
+      alert('등기정보가 성공적으로 저장되었습니다.');
+      setShowSaveOption(false);
+      // 저장 성공 후 마이페이지로 이동
+      navigate('/mypage');
+    } catch (error: any) {
+      console.error('저장 오류:', error);
+      alert(error.response?.data?.message || '저장에 실패했습니다.');
+    }
+  };
+
+  const handleNewSearch = () => {
+    setShowResults(false);
+    setShowNameInput(false);
+    setProcessCompleted(false);
+    setIsFormHiding(false);
+    setShowSuccessMessage(false);
+    setCheckProcessCompleted(false);
+    setShowSaveOption(false);
+    setAddress('');
+    setName('');
+  };
+
   return (
     <Layout showMyPageBtn>
       <Card variant="main">
         <h2>Report Information</h2>
-        <form onSubmit={handleAddressSubmit}>
-          <Input
-            type="text"
-            placeholder="Address"
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-            required
-          />
-          <Button type="submit" disabled={isLoading}>
-            Submit
-          </Button>
-        </form>
+        {!showResults && (
+          <>
+            <form 
+              onSubmit={handleAddressSubmit} 
+              className={`${styles.searchForm} ${isFormHiding ? styles.hiding : ''}`}
+            >
+              <Input
+                type="text"
+                placeholder="Address"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                required
+              />
+              <Button type="submit" disabled={isLoading}>
+                Submit
+              </Button>
+            </form>
+            {showSuccessMessage && (
+              <div className={styles.successMessage}>
+                검색 성공!
+              </div>
+            )}
+          </>
+        )}
         
         {error && (
           <div style={{ color: 'red', marginTop: '10px', textAlign: 'center' }}>
@@ -123,6 +208,13 @@ export const Main = () => {
         
         {showResults && (
           <div className={styles.resultSection}>
+            <Button 
+              variant="secondary" 
+              onClick={handleNewSearch}
+              style={{ marginBottom: '20px' }}
+            >
+              새 검색
+            </Button>
             {!processCompleted && (
               <>
                 <div className={styles.resultHeader}>검색 결과</div>
@@ -151,29 +243,33 @@ export const Main = () => {
               </>
             )}
             
-            {processCompleted && processResult && (
+            {processCompleted && processResult && !checkProcessCompleted && (
               <>
                 <div className={styles.resultHeader}>프로세스 결과</div>
-                <div className={styles.addressList}>
-                  <div className={styles.addressItem}>
-                    <div className={styles.addressDetail}>
-                      부동산 고유번호: {processResult.a301pin || 'N/A'}
-                    </div>
-                    <div className={styles.addressDetail}>
-                      부동산 소재지번: {localStorage.getItem('real_indi_cont_detail') || 'N/A'}
-                    </div>
-                    <div className={styles.addressDetail}>
-                      소유자: {processResult.a318nomprs_name || 'N/A'}
-                    </div>
-                    <div className={styles.addressDetail}>
-                      등기상태: {processResult.a301use_cls_cd_nm || 'N/A'}
-                    </div>
-                  </div>
-                </div>
+                <table className={styles.resultTable}>
+                  <tbody>
+                    <tr>
+                      <th>부동산 고유번호</th>
+                      <td>{processResult.a301pin || 'N/A'}</td>
+                    </tr>
+                    <tr>
+                      <th>부동산 소재지번</th>
+                      <td>{localStorage.getItem('real_indi_cont_detail') || 'N/A'}</td>
+                    </tr>
+                    <tr>
+                      <th>소유자</th>
+                      <td>{processResult.a318nomprs_name || 'N/A'}</td>
+                    </tr>
+                    <tr>
+                      <th>등기상태</th>
+                      <td>{processResult.a301use_cls_cd_nm || 'N/A'}</td>
+                    </tr>
+                  </tbody>
+                </table>
               </>
             )}
             
-            {showNameInput && (
+            {showNameInput && !checkProcessCompleted && (
               <div className={styles.nameInputSection}>
                 <div className={styles.resultHeader}>이름 입력</div>
                 <div className={styles.nameInputContainer}>
@@ -197,31 +293,43 @@ export const Main = () => {
               </div>
             )}
 
-            {checkProcessResult && (
+            {checkProcessCompleted && checkProcessResult && (
               <>
                 <div className={styles.resultHeader}>등기 정보 확인 결과</div>
-                <div className={styles.addressList}>
-                  <div className={styles.addressItem}>
-                    <div className={styles.addressDetail}>
-                      <strong>디버그 - 전체 응답:</strong> {JSON.stringify(checkProcessResult, null, 2)}
-                    </div>
+                <table className={styles.resultTable}>
+                  <tbody>
                     {Object.entries(checkProcessResult)
-                      .filter(([key, value]) => {
-                        const isValidValue = value !== null && value !== undefined && value !== '';
-                        const isImportantKey = ['a101rel_charge_cd', 'a101recev_date', 'regt_name', 'e033rgs_sel_name', 
+                      .filter(([key, value]) => 
+                        value !== null && 
+                        value !== undefined && 
+                        value !== '' && 
+                        value !== 0 &&
+                        ['a101rel_charge_cd', 'a101recev_date', 'regt_name', 'e033rgs_sel_name', 
                          'a101recev_no', 'recev_regt_name', 'a105real_indi_cont', 'a105_pin',
-                         'e008cd_name', 'court_name', 'a101appl_year', 'a101recev_seq', 'statlin'].includes(key);
-                        console.log(`Key: ${key}, Value: ${value}, Valid: ${isValidValue}, Important: ${isImportantKey}`);
-                        return isValidValue && isImportantKey;
-                      })
+                         'e008cd_name', 'court_name', 'a101appl_year', 'a101recev_seq', 'statlin'].includes(key)
+                      )
                       .map(([key, value]) => (
-                        <div key={key} className={styles.addressDetail}>
-                          <strong>{getKoreanLabel(key)}:</strong>{' '}
-                          {key === 'a101recev_date' ? formatDate(String(value)) : String(value)}
-                        </div>
+                        <tr key={key}>
+                          <th>{getKoreanLabel(key)}</th>
+                          <td>{key === 'a101recev_date' ? formatDate(String(value)) : String(value)}</td>
+                        </tr>
                       ))}
+                  </tbody>
+                </table>
+                
+                {showSaveOption && (
+                  <div className={styles.saveSection}>
+                    <p className={styles.saveMessage}>해당 등기정보결과를 저장하겠습니까?</p>
+                    <Button
+                      variant="primary"
+                      size="small"
+                      onClick={handleSaveResult}
+                      disabled={isLoading}
+                    >
+                      저장하기
+                    </Button>
                   </div>
-                </div>
+                )}
               </>
             )}
           </div>

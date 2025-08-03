@@ -1,8 +1,7 @@
 .layout {
   min-height: 100vh;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
   position: relative;
 }
 
@@ -12,4 +11,5 @@
   justify-content: center;
   flex: 1;
   padding: 20px;
+  min-height: calc(100vh - 120px); /* Header 높이만큼 빼기 */
 }

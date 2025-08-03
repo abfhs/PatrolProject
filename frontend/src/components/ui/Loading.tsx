@@ -12,6 +12,11 @@ export const Loading = ({ text = '로딩중입니다', show }: LoadingProps) => 
     <div className={styles.overlay}>
       <div className={styles.content}>
         <div className={styles.spinner}></div>
+        <div className={styles.dots}>
+          <div className={styles.dot}></div>
+          <div className={styles.dot}></div>
+          <div className={styles.dot}></div>
+        </div>
         <div className={styles.text}>{text}</div>
       </div>
     </div>

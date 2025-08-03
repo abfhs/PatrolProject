@@ -27,3 +27,21 @@
 .myPageBtn:hover {
   background: rgba(255, 193, 7, 0.1);
 }
+
+/* 모바일 반응형 */
+@media (max-width: 768px) {
+  .header {
+    position: static;
+    text-align: center;
+    font-size: 2rem;
+    padding: 20px 0;
+    margin: 0;
+  }
+
+  .myPageBtn {
+    position: static;
+    display: block;
+    margin: 10px auto 0;
+    width: fit-content;
+  }
+}

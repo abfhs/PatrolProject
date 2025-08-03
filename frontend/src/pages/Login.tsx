@@ -16,7 +16,7 @@ export const Login = () => {
     try {
       await login({ email, password });
     } catch (error) {
-      // Error handling is done in the hook
+      console.log("에러발생!! :" + error);
     }
   };
 

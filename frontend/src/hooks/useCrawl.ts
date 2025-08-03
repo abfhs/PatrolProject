@@ -96,9 +96,19 @@ export const useCrawl = () => {
         name,
       });
 
-      console.log('API response received:', response);
+      // 브라우저에 결과 저장
+      const resultWithTimestamp = {
+        ...response,
+        timestamp: new Date().toISOString(),
+        id: Date.now()
+      };
+      
+      // 기존 결과 가져오기
+      const existingResults = JSON.parse(localStorage.getItem('result') || '[]');
+      existingResults.push(resultWithTimestamp);
+      localStorage.setItem('result', JSON.stringify(existingResults));
+
       setCheckProcessResult(response);
-      console.log('State updated with:', response);
       return response;
     } catch (error: any) {
       setError(error.response?.data?.message || '프로세스 확인에 실패했습니다.');

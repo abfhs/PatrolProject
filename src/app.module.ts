@@ -8,7 +8,9 @@ import { UsersModule } from './users/users.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CommonModule } from './common/common.module';
 import { UsersModel } from './users/entities/users.entitys';
+import { ScheduleModel } from './schedule/entities/schedule.entity';
 import { CrawlModule } from './crawl/crawl.module';
+import { ScheduleModule } from './schedule/schedule.module';
 import { ConfigModule } from '@nestjs/config';
 
 @Module({
@@ -30,14 +32,16 @@ import { ConfigModule } from '@nestjs/config';
       database: 'postgres',
       entities: [
         // PostsModel,
-        UsersModel
+        UsersModel,
+        ScheduleModel
       ],
       synchronize: true, // 배포 시에는 자동 연동되지 않도록 false로 세팅
     }),
     AuthModule,
     UsersModule,
     CommonModule,
-    CrawlModule
+    CrawlModule,
+    ScheduleModule
   ],
   controllers: [AppController],
   providers: [AppService],

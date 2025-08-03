@@ -13,16 +13,31 @@ export const useAuth = () => {
       setIsLoading(true);
       setError(null);
       
+      // 기존 토큰 정리 (혹시 남아있는 잘못된 토큰 제거)
+      localStorage.removeItem('accessToken');
+      
       const response = await apiClient.login(credentials);
       
-      // Store tokens
+      // Store tokens and user info
       localStorage.setItem('accessToken', response.accessToken);
+      localStorage.setItem('user', JSON.stringify(response.user));
       document.cookie = `refreshToken=${response.refreshToken}; path=/; max-age=${7*24*60*60}; Secure`;
       
       // Navigate to main page
       navigate('/main');
     } catch (error: any) {
-      setError(error.response?.data?.message || '로그인에 실패했습니다.');
+      console.error('Login error:', error);
+      let errorMessage = '로그인에 실패했습니다.';
+      
+      if (error.response?.status === 401) {
+        errorMessage = '이메일 또는 비밀번호가 올바르지 않습니다.';
+      } else if (error.response?.status === 500) {
+        errorMessage = '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
+      } else if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      }
+      
+      setError(errorMessage);
       throw error;
     } finally {
       setIsLoading(false);
@@ -36,8 +51,9 @@ export const useAuth = () => {
       
       const response = await apiClient.register(userData);
       
-      // Store tokens
+      // Store tokens and user info
       localStorage.setItem('accessToken', response.accessToken);
+      localStorage.setItem('user', JSON.stringify(response.user));
       document.cookie = `refreshToken=${response.refreshToken}; path=/; max-age=${7*24*60*60}; Secure`;
       
       // Navigate to main page
@@ -52,6 +68,7 @@ export const useAuth = () => {
 
   const logout = () => {
     localStorage.removeItem('accessToken');
+    localStorage.removeItem('user');
     document.cookie = 'refreshToken=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
     navigate('/');
   };

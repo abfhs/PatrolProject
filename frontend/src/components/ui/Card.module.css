@@ -4,11 +4,12 @@
   border-radius: 20px;
   border: 1px solid var(--border-primary);
   box-shadow: var(--shadow-primary);
-  padding: 50px 40px;
+  padding: 60px 50px;
   display: flex;
   flex-direction: column;
   align-items: center;
   transition: transform 0.3s ease;
+  position: relative;
 }
 
 .card:hover {
@@ -17,19 +18,42 @@
 
 .card h2 {
   color: var(--primary-color);
-  margin-bottom: 30px;
-  font-size: 2rem;
+  margin-bottom: 40px;
+  font-size: 2.2rem;
   font-weight: 600;
 }
 
 .loginCard {
-  width: 350px;
+  width: 450px;
+  max-width: 90vw;
 }
 
 .signupCard {
-  width: 380px;
+  width: 480px;
+  max-width: 90vw;
 }
 
 .mainCard {
-  width: 400px;
+  width: 800px;
+  max-width: 95vw;
+}
+
+/* 모바일 반응형 */
+@media (max-width: 768px) {
+  .card {
+    padding: 30px 20px;
+    margin: 10px;
+  }
+
+  .card h2 {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+  }
+
+  .loginCard,
+  .signupCard,
+  .mainCard {
+    width: 100%;
+    max-width: calc(100vw - 40px);
+  }
 }
