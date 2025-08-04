@@ -5,7 +5,7 @@ import { Layout } from '../components/layout/Layout';
 import { Card, Button, Input, Loading } from '../components/ui';
 import { useCrawl } from '../hooks/useCrawl';
 import { apiClient } from '../services/api';
-import type { AddressItem, CheckProcessResponse } from '../types/api';
+import type { AddressItem } from '../types/api';
 import styles from './Main.module.css';
 
 export const Main = () => {

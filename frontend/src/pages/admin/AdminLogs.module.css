@@ -1,0 +1,423 @@
+.logsPage {
+  padding: 20px;
+  max-width: 1600px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.pageHeader {
+  margin-bottom: 5px;
+}
+
+.pageHeader h1 {
+  color: #4dabf7;
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+}
+
+.pageHeader p {
+  color: #a0a0a0;
+  font-size: 1rem;
+  margin: 0;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 300px;
+  color: #a0a0a0;
+  font-size: 1.1rem;
+}
+
+.statsSection {
+  margin-bottom: 10px;
+}
+
+.statsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.statsHeader h2 {
+  color: #4dabf7;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.statsControls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.periodSelect {
+  background: rgba(45, 45, 66, 0.8);
+  border: 1px solid rgba(77, 171, 247, 0.3);
+  color: #ffffff;
+  font-size: 0.9rem;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.periodSelect:focus {
+  outline: none;
+  border-color: #4dabf7;
+  box-shadow: 0 0 0 2px rgba(77, 171, 247, 0.1);
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.statCard {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 20px !important;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.statCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 12px 50px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(77, 171, 247, 0.2) !important;
+}
+
+.statIcon {
+  font-size: 2rem;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(77, 171, 247, 0.1);
+  border-radius: 10px;
+  border: 1px solid rgba(77, 171, 247, 0.2);
+  flex-shrink: 0;
+}
+
+.statContent {
+  flex: 1;
+}
+
+.statContent h3 {
+  color: #4dabf7;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin: 0 0 5px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.statNumber {
+  color: #ffffff;
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 0 0 3px 0;
+  line-height: 1;
+}
+
+.statContent p {
+  color: #8c8fa3;
+  font-size: 0.8rem;
+  margin: 0;
+}
+
+.logsTable {
+  padding: 0 !important;
+  overflow: hidden;
+}
+
+.tableHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 25px 30px;
+  border-bottom: 1px solid rgba(77, 171, 247, 0.1);
+}
+
+.tableHeader h3 {
+  color: #4dabf7;
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.tableControls {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.dateInput {
+  background: rgba(45, 45, 66, 0.8);
+  border: 1px solid rgba(77, 171, 247, 0.3);
+  color: #ffffff;
+  font-size: 0.9rem;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.dateInput:focus {
+  outline: none;
+  border-color: #4dabf7;
+  box-shadow: 0 0 0 2px rgba(77, 171, 247, 0.1);
+}
+
+.emptyState {
+  padding: 60px 30px;
+  text-align: center;
+  color: #8c8fa3;
+  font-size: 1rem;
+}
+
+.emptyState p {
+  margin: 10px 0 0 0;
+  font-size: 0.9rem;
+  color: #6c7293;
+}
+
+.tableWrapper {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background: transparent;
+  min-width: 1000px;
+}
+
+.table th {
+  background: rgba(45, 45, 66, 0.5);
+  color: #4dabf7;
+  font-weight: 600;
+  font-size: 0.85rem;
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 2px solid rgba(77, 171, 247, 0.2);
+  white-space: nowrap;
+}
+
+.table td {
+  padding: 12px 15px;
+  border-bottom: 1px solid rgba(77, 171, 247, 0.1);
+  color: #ffffff;
+  font-size: 0.85rem;
+  vertical-align: middle;
+}
+
+.table tr:hover td {
+  background: rgba(45, 45, 66, 0.3);
+}
+
+.taskName {
+  color: #4dabf7 !important;
+  font-weight: 600;
+  font-family: 'Courier New', monospace;
+}
+
+.statusTag {
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 3px 8px;
+  background: currentColor;
+  color: #1e1e2e !important;
+  border-radius: 10px;
+  display: inline-block;
+  opacity: 0.9;
+}
+
+.date {
+  color: #8c8fa3 !important;
+  font-size: 0.8rem !important;
+  font-family: 'Courier New', monospace;
+}
+
+.duration {
+  color: #ffd43b !important;
+  font-weight: 600;
+  font-family: 'Courier New', monospace;
+  font-size: 0.8rem !important;
+}
+
+.counts {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.countItem {
+  font-size: 0.75rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.detailButton {
+  background: rgba(77, 171, 247, 0.1);
+  border: 1px solid rgba(77, 171, 247, 0.3);
+  color: #4dabf7;
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.detailButton:hover {
+  background: rgba(77, 171, 247, 0.2);
+  border-color: #4dabf7;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding: 20px 30px 25px;
+  border-top: 1px solid rgba(77, 171, 247, 0.1);
+}
+
+.pageButton {
+  background: rgba(45, 45, 66, 0.8);
+  border: 1px solid rgba(77, 171, 247, 0.3);
+  color: #a0a0a0;
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 40px;
+}
+
+.pageButton:hover {
+  background: rgba(77, 171, 247, 0.1);
+  border-color: #4dabf7;
+  color: #4dabf7;
+}
+
+.pageButton.active {
+  background: #4dabf7;
+  border-color: #4dabf7;
+  color: #1e1e2e;
+  font-weight: 600;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 1200px) {
+  .statsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .table th,
+  .table td {
+    padding: 10px 12px;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .logsPage {
+    padding: 15px;
+    gap: 20px;
+  }
+  
+  .pageHeader h1 {
+    font-size: 1.7rem;
+  }
+  
+  .statsHeader {
+    flex-direction: column;
+    gap: 15px;
+    align-items: stretch;
+  }
+  
+  .statsGrid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+  
+  .statCard {
+    padding: 15px !important;
+  }
+  
+  .tableHeader {
+    padding: 20px;
+    flex-direction: column;
+    gap: 15px;
+    align-items: stretch;
+  }
+  
+  .tableControls {
+    justify-content: space-between;
+  }
+  
+  .table {
+    min-width: 800px;
+  }
+  
+  /* 작은 화면에서는 일부 컬럼 숨김 */
+  .table th:nth-child(1),
+  .table td:nth-child(1),
+  .table th:nth-child(5),
+  .table td:nth-child(5) {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .statIcon {
+    font-size: 1.5rem;
+    width: 40px;
+    height: 40px;
+  }
+  
+  .statNumber {
+    font-size: 1.5rem;
+  }
+  
+  .table {
+    min-width: 600px;
+  }
+  
+  .table th:nth-child(6),
+  .table td:nth-child(6) {
+    display: none;
+  }
+  
+  .counts {
+    gap: 1px;
+  }
+  
+  .countItem {
+    font-size: 0.7rem;
+  }
+  
+  .detailButton {
+    font-size: 0.7rem;
+    padding: 4px 8px;
+  }
+}

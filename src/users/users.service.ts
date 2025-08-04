@@ -53,7 +53,7 @@ export class UsersService {
             where:{
                 email,
             },
-        })
+        });
     }
 
     async addUserResult(email: string, result: any){

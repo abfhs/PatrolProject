@@ -167,7 +167,7 @@ export class AuthService {
         })
     }
 
-    loginUser(user: Pick<UsersModel, 'email'| 'id' | 'nickname'>){
+    loginUser(user: Pick<UsersModel, 'email'| 'id' | 'nickname' | 'role'>){
         return {
             accessToken: this.signToken(user, false),
             refreshToken: this.signToken(user, true),
@@ -175,8 +175,9 @@ export class AuthService {
                 email: user.email,
                 nickname: user.nickname,
                 id: user.id,
+                role: user.role,
             }
-        }
+        };
     }
 
     async authenticateWithEmailAndPassword(user: Pick<UsersModel, 'email' | 'password'>){

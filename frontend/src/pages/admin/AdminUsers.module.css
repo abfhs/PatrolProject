@@ -1,0 +1,218 @@
+.usersPage {
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.pageHeader {
+  margin-bottom: 30px;
+}
+
+.pageHeader h1 {
+  color: #4dabf7;
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+}
+
+.pageHeader p {
+  color: #a0a0a0;
+  font-size: 1rem;
+  margin: 0 0 15px 0;
+}
+
+.stats {
+  color: #4dabf7;
+  font-size: 0.9rem;
+  font-weight: 500;
+  background: rgba(77, 171, 247, 0.1);
+  padding: 10px 15px;
+  border-radius: 8px;
+  border: 1px solid rgba(77, 171, 247, 0.2);
+  display: inline-block;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 300px;
+  color: #a0a0a0;
+  font-size: 1.1rem;
+}
+
+.usersTable {
+  padding: 0 !important;
+  overflow: hidden;
+}
+
+.tableHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 25px 30px;
+  border-bottom: 1px solid rgba(77, 171, 247, 0.1);
+}
+
+.tableHeader h3 {
+  color: #4dabf7;
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.emptyState {
+  padding: 60px 30px;
+  text-align: center;
+  color: #8c8fa3;
+  font-size: 1rem;
+}
+
+.tableWrapper {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background: transparent;
+}
+
+.table th {
+  background: rgba(45, 45, 66, 0.5);
+  color: #4dabf7;
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 15px 20px;
+  text-align: left;
+  border-bottom: 2px solid rgba(77, 171, 247, 0.2);
+  white-space: nowrap;
+}
+
+.table td {
+  padding: 15px 20px;
+  border-bottom: 1px solid rgba(77, 171, 247, 0.1);
+  color: #ffffff;
+  font-size: 0.9rem;
+  vertical-align: middle;
+}
+
+.table tr:hover td {
+  background: rgba(45, 45, 66, 0.3);
+}
+
+.nickname {
+  font-weight: 600;
+  color: #ffffff !important;
+}
+
+.email {
+  color: #a0a0a0 !important;
+  font-family: 'Courier New', monospace;
+  font-size: 0.85rem !important;
+}
+
+.roleTag {
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 4px 8px;
+  background: currentColor;
+  color: #1e1e2e !important;
+  border-radius: 12px;
+  display: inline-block;
+  opacity: 0.9;
+}
+
+.date {
+  color: #8c8fa3 !important;
+  font-size: 0.85rem !important;
+  font-family: 'Courier New', monospace;
+}
+
+.deleteButton {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.deleteButton:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.5);
+}
+
+.deleteButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: rgba(100, 100, 100, 0.1);
+  border-color: rgba(100, 100, 100, 0.3);
+  color: #666;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 1200px) {
+  .table th,
+  .table td {
+    padding: 12px 15px;
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .usersPage {
+    padding: 15px;
+  }
+  
+  .pageHeader h1 {
+    font-size: 1.7rem;
+  }
+  
+  .tableHeader {
+    padding: 20px;
+    flex-direction: column;
+    gap: 15px;
+    align-items: stretch;
+  }
+  
+  .stats {
+    font-size: 0.85rem;
+    padding: 8px 12px;
+  }
+  
+  .table {
+    font-size: 0.8rem;
+  }
+  
+  .table th,
+  .table td {
+    padding: 10px 12px;
+  }
+  
+  /* 작은 화면에서는 일부 컬럼 숨김 */
+  .table th:nth-child(6),
+  .table td:nth-child(6) {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .table th:nth-child(1),
+  .table td:nth-child(1),
+  .table th:nth-child(5),
+  .table td:nth-child(5) {
+    display: none;
+  }
+  
+  .deleteButton {
+    font-size: 0.75rem;
+    padding: 5px 8px;
+  }
+}

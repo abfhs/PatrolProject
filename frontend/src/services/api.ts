@@ -43,9 +43,21 @@ class ApiClient {
       (response) => response,
       (error) => {
         if (error.response?.status === 401) {
-          // Handle unauthorized - redirect to login
-          localStorage.removeItem('accessToken');
-          window.location.href = '/';
+          // Handle unauthorized - only redirect for non-admin pages
+          const currentPath = window.location.pathname;
+          
+          // Admin 로그인 페이지에서는 리다이렉트하지 않음
+          if (!currentPath.startsWith('/admin/login')) {
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('adminAccessToken');
+            
+            // Admin 페이지에서 401 발생 시 admin 로그인으로, 일반 페이지에서는 일반 로그인으로
+            if (currentPath.startsWith('/admin')) {
+              window.location.href = '/admin/login';
+            } else {
+              window.location.href = '/';
+            }
+          }
         }
         return Promise.reject(error);
       }
@@ -152,6 +164,103 @@ class ApiClient {
   async runScheduleManually(): Promise<{ message: string }> {
     const response: AxiosResponse<{ message: string }> = await this.client.post(
       '/schedule/run-manual'
+    );
+    return response.data;
+  }
+
+  // Admin methods
+  async getAdminDashboard(): Promise<any> {
+    const response: AxiosResponse<any> = await this.client.get(
+      '/admin/dashboard',
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('adminAccessToken')}`,
+        },
+      }
+    );
+    return response.data;
+  }
+
+  async getAdminUsers(): Promise<any[]> {
+    const response: AxiosResponse<any[]> = await this.client.get(
+      '/admin/users',
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('adminAccessToken')}`,
+        },
+      }
+    );
+    return response.data;
+  }
+
+  async deleteAdminUser(userId: number): Promise<void> {
+    await this.client.delete(`/admin/users/${userId}`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('adminAccessToken')}`,
+      },
+    });
+  }
+
+  async getAdminSchedules(): Promise<any[]> {
+    const response: AxiosResponse<any[]> = await this.client.get(
+      '/admin/schedules',
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('adminAccessToken')}`,
+        },
+      }
+    );
+    return response.data;
+  }
+
+  async deleteAdminSchedule(scheduleId: number): Promise<void> {
+    await this.client.delete(`/admin/schedules/${scheduleId}`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('adminAccessToken')}`,
+      },
+    });
+  }
+
+  async runAdminScheduler(): Promise<{ message: string }> {
+    const response: AxiosResponse<{ message: string }> = await this.client.post(
+      '/admin/scheduler/run',
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('adminAccessToken')}`,
+        },
+      }
+    );
+    return response.data;
+  }
+
+  async getAdminSchedulerLogs(page: number, limit: number, date?: string): Promise<any> {
+    const params = new URLSearchParams();
+    params.append('page', page.toString());
+    params.append('limit', limit.toString());
+    if (date) {
+      params.append('date', date);
+    }
+
+    const response: AxiosResponse<any> = await this.client.get(
+      `/admin/scheduler/logs?${params.toString()}`,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('adminAccessToken')}`,
+        },
+      }
+    );
+    return response.data;
+  }
+
+  async getAdminSchedulerStats(days: number): Promise<any> {
+    const response: AxiosResponse<any> = await this.client.get(
+      `/admin/scheduler/stats?days=${days}`,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('adminAccessToken')}`,
+        },
+      }
     );
     return response.data;
   }
