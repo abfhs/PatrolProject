@@ -4,6 +4,8 @@ import { Repository } from 'typeorm';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { ScheduleModel } from './entities/schedule.entity';
 import { TaskLog, TaskStatus } from './entities/task-log.entity';
+import { CrawlService } from '../crawl/crawl.service';
+import { EmailService } from '../auth/services/email.service';
 
 export interface CreateScheduleDto {
   addressPin: string;
@@ -19,6 +21,8 @@ export class ScheduleService {
     private readonly scheduleRepository: Repository<ScheduleModel>,
     @InjectRepository(TaskLog)
     private readonly taskLogRepository: Repository<TaskLog>,
+    private readonly crawlService: CrawlService,
+    private readonly emailService: EmailService,
   ) {}
 
   /**
@@ -182,9 +186,17 @@ export class ScheduleService {
   private async processScheduleItem(schedule: ScheduleModel): Promise<void> {
     try {
       console.log(`처리 중: ${schedule.email} - ${schedule.address}`);
+
+      // 1. CrawlService의 getLogin 함수를 먼저 실행하여 로그인 세션 확보
+      console.log('🔐 등기소 로그인 세션 확보 중...');
+      const loginData = await this.crawlService.getLogin();
       
-      // 여기서 실제 작업 함수 호출
-      await this.executeCustomTask(schedule);
+      console.log('✅ 로그인 성공:', {
+        id: loginData.id,
+        crypted_id: loginData.crypted_id ? '***' : null, // 보안상 마스킹
+      });
+
+      await this.executeCustomTask(loginData, schedule);
       
       console.log(`처리 완료: ${schedule.email}`);
     } catch (error) {
@@ -193,28 +205,53 @@ export class ScheduleService {
   }
 
   /**
-   * 사용자가 정의할 실제 작업 함수
-   * 현재는 빈 함수로 준비되어 있으며, 사용자가 나중에 구현할 예정
+   * 실제 작업 함수 - CrawlService를 사용하여 등기정보 조회
    */
-  private async executeCustomTask(schedule: ScheduleModel): Promise<void> {
-    // TODO: 여기에 실제 작업 로직을 구현하세요
-    // 예시: 
-    // - 등기정보 조회
-    // - 변경사항 확인
-    // - 이메일 알림 발송
-    // - 외부 API 호출 등
-    
-    console.log('작업 실행:', {
-      addressPin: schedule.addressPin,
-      ownerName: schedule.ownerName,
-      email: schedule.email,
-      address: schedule.address,
-    });
+  private async executeCustomTask(
+    loginData: {
+      id: string,
+      crypted_id: string,
+      cookieString: string,
+    },
+     schedule: ScheduleModel 
+  ): Promise<void>{
+    try {
+      console.log('작업 실행:', {
+        addressPin: schedule.addressPin,
+        ownerName: schedule.ownerName,
+        email: schedule.email,
+        address: schedule.address,
+      });
 
-    // 임시로 1초 대기 (실제 작업 시뮬레이션)
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    console.log('작업 완료 (임시)');
+      // 2. 로그인 정보를 사용하여 등기정보 조회
+      console.log('📋 등기정보 조회 중...');
+      const crawlResult = await this.crawlService.getChuriData(
+        loginData.id,
+        loginData.crypted_id,
+        loginData.cookieString,
+        schedule.addressPin,
+        schedule.ownerName,
+        schedule.address
+      );
+
+      console.log('✅ 등기정보 조회 완료:', {
+        scheduleId: schedule.id,
+        email: schedule.email,
+        resultKeys: Object.keys(crawlResult || {}),
+      });
+
+      // 3. 조회된 정보 처리 (향후 확장 가능)
+      // TODO: 여기에 추가 로직 구현
+      // - 이전 조회 결과와 비교
+      // - 변경사항 발견 시 이메일 알림
+      // - 결과 데이터베이스 저장 등
+
+      console.log('🎉 작업 완료');
+      
+    } catch (error) {
+      console.error('❌ 작업 실행 중 오류 발생:', error);
+      throw error; // 상위에서 실패로 처리되도록 오류를 다시 던짐
+    }
   }
 
   /**
@@ -312,5 +349,39 @@ export class ScheduleService {
         averageRunTime: Math.round(parseFloat(stat.averageRunTime)) || 0,
       })),
     };
+  }
+
+  // crawlResult 저장 메서드
+  async saveCrawlResult(scheduleId: number, crawlResult: any): Promise<ScheduleModel> {
+    const schedule = await this.scheduleRepository.findOne({ where: { id: scheduleId } });
+    
+    if (!schedule) {
+      throw new BadRequestException('스케줄을 찾을 수 없습니다.');
+    }
+
+    schedule.crawlResult = crawlResult;
+    const savedSchedule = await this.scheduleRepository.save(schedule);
+
+    // 스케줄 등록 완료 이메일 발송
+    try {
+      const scheduleData = {
+        address: schedule.address,
+        addressPin: schedule.addressPin,
+        ownerName: schedule.ownerName,
+      };
+
+      await this.emailService.sendScheduleRegistrationEmail(
+        schedule.email,
+        scheduleData,
+        crawlResult
+      );
+
+      console.log(`✅ 스케줄 등록 완료 이메일 발송 성공: ${schedule.email}`);
+    } catch (error) {
+      console.error(`❌ 스케줄 등록 완료 이메일 발송 실패: ${schedule.email}`, error);
+      // 이메일 발송 실패해도 스케줄 저장은 유지
+    }
+
+    return savedSchedule;
   }
 }

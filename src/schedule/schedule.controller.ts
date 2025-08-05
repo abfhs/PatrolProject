@@ -7,7 +7,8 @@ import {
   Param, 
   UseGuards,
   HttpCode,
-  HttpStatus
+  HttpStatus,
+  Put
 } from '@nestjs/common';
 import { ScheduleService, CreateScheduleDto } from './schedule.service';
 import { AccessTokenGuard } from 'src/auth/guard/bearer-token.guard';
@@ -70,5 +71,22 @@ export class ScheduleController {
   async runScheduleManually(): Promise<{ message: string }> {
     await this.scheduleService.runScheduleManually();
     return { message: '스케줄이 수동으로 실행되었습니다.' };
+  }
+
+  /**
+   * 스케줄에 crawlResult 저장
+   * PUT /schedule/:id/crawl-result
+   */
+  @Put(':id/crawl-result')
+  @HttpCode(HttpStatus.OK)
+  async saveCrawlResult(
+    @Param('id') id: string,
+    @Body('crawlResult') crawlResult: any
+  ): Promise<ScheduleModel> {
+    const scheduleId = parseInt(id, 10);
+    if (isNaN(scheduleId)) {
+      throw new Error('유효하지 않은 ID입니다.');
+    }
+    return await this.scheduleService.saveCrawlResult(scheduleId, crawlResult);
   }
 }

@@ -1,7 +1,8 @@
-import { BadGatewayException, Injectable } from '@nestjs/common';
+import { BadGatewayException, Injectable, NotFoundException } from '@nestjs/common';
 import { UsersModel } from './entities/users.entitys';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { RolesEnum } from './const/roles.const';
 
 @Injectable()
 export class UsersService {
@@ -85,6 +86,28 @@ export class UsersService {
         }
 
         return user.result || [];
+    }
+
+    async getUserById(id: number): Promise<UsersModel> {
+        const user = await this.userRepository.findOne({
+            where: { id },
+        });
+
+        if (!user) {
+            throw new NotFoundException('사용자를 찾을 수 없습니다.');
+        }
+
+        return user;
+    }
+
+    async updateUserRole(userId: number, role: RolesEnum): Promise<UsersModel> {
+        const user = await this.getUserById(userId);
+        
+        user.role = role;
+        const updatedUser = await this.userRepository.save(user);
+
+        console.log(`✅ 사용자 역할 업데이트: ${user.email} (${user.role} → ${role})`);
+        return updatedUser;
     }
 
 }

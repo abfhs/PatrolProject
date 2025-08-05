@@ -1,11 +1,49 @@
-지금 admin페이지의 로그인에 문제가 있어.
-frontend\src\pages\admin\AdminLogin.tsx의 로직에 문제가 있어 보이거든?
+schedule.service.ts에서 다음 로직 구현이 필요해.
+1. 228라인의 await this.crawlService.getChuriData 함수를 실행하고 나면 정상 응답으로 아래와 같은 json이 return될꺼야.
 
-// 어드민 권한 확인
-  if (response.user.role !== 'ADMIN') {
-    setError('관리자 권한이 필요합니다.');
-    return;
-  }
-이 로직에서 response.user의 값을 확인했을 때 아래와 같아. role값이 없거든? 로직을 수정해야할거같은데 확인해봐.
+스케줄 db중 schedule.crawlResult값도 등기정보 변경이 없다면 아래 결과값과 같은 결과일꺼야.
+db의 저장되어있는 값과 await this.crawlService.getChuriData 함수의 결과값을 비교하는 로직이 필요해. 제이슨 키 중 id값과 timestamp값은 가변값이라서 비교하지 마.
 
-{email: 'superuser@admin.com', nickname: 'superuser', id: 6}
+만약 db의 있는 값과 await this.crawlService.getChuriData 함수의 결과값이 같다면 성공 처리해줘. 다르다면 실패 처리해주고 await this.crawlService.getChuriData의 결과값을 메일로 보내는 로직 구현이 필요해. 메일 주소는 schedule.email에 있는 메일로 보내줘.
+
+메일은 email.service.ts의 getScheduleRegistrationEmailTemplate 함수를 참고하면 되는데 메일의 내용은 "등기정보가 변경되었습니다! 인터넷등기소에서 부동산 등기부등본을 확인해보세요!"이고 getScheduleRegistrationEmailTemplate함수에서처럼 크롤링 결과 등기정보를 사용자가 볼 수 있게 해줘.
+
+{
+    "a101recev_regt_ver": "01",
+    "a101appl_year": "2025",
+    "a101handl_stat_cd": "15533",
+    "itpurcode": 0,
+    "a101bond_no": "",
+    "juris_regt_nm": "서울중앙지방법원  등기국",
+    "a101regt_no": "1101",
+    "a101rel_charge_cd": "등기1계",
+    "a101recev_date": "20250717",
+    "strHistDateTime": "",
+    "al03_suv_rog": "0",
+    "a101bond_return_fee": 0,
+    "a105real_indi_cont": "[전유]관악구 남부순환로 1953 제3층 제302호 [봉천동 1690-153 오피스텔더스위트]",
+    "statlin": "i10ssv0003 조회성공",
+    "strRegiPrintGb": "N",
+    "a101regt_ver": "01",
+    "sub_court_name": "",
+    "regt_name": "서울중앙지방법원 등기국",
+    "court_name": "서울중앙지방법원",
+    "recev_court_name": "서울중앙지방법원",
+    "a101recev_seq": 134423,
+    "e008cd_name": "교합완료",
+    "a101recev_regt_no": "1101",
+    "a105_pin": "11012024008101",
+    "a101bond_no_fee": 0,
+    "a101recv_gb": "E",
+    "e033rgs_sel_name": "근저당권말소",
+    "a101appl_cls_cd": "14031",
+    "a131enr_no_cls_cd_cnt": 0,
+    "recev_sub_court_name": "",
+    "a101recev_no": "3734249",
+    "recev_regt_name": "서울중앙지방법원 등기국",
+    "a101input_cls": "4",
+    "e033rgs_aim_cd": "F3ZZGZ",
+    "a105_real_indi_cont_detail": "",
+    "timestamp": "2025-08-02T10:02:25.632Z",
+    "id": 1754128945632
+}

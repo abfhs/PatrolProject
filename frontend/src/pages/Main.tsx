@@ -124,30 +124,8 @@ export const Main = () => {
         return;
       }
 
-      // localStorage에서 필요한 데이터 수집
-      const addressPin = localStorage.getItem('pin');
-      const ownerName = localStorage.getItem('ownerName');
-      const address = localStorage.getItem('real_indi_cont_detail');
-
-      // 필수 데이터 검증
-      if (!addressPin || !ownerName || !address) {
-        alert('저장에 필요한 정보가 부족합니다. 다시 검색해주세요.');
-        return;
-      }
-
-      // ScheduleModel에 저장 (스케줄링을 위한 데이터)
-      const scheduleData = {
-        addressPin,
-        ownerName,
-        email: user.email,
-        address,
-      };
-
-      // 두 가지 저장 작업을 병렬로 수행
-      await Promise.all([
-        apiClient.createSchedule(scheduleData),
-        apiClient.addUserResult(user.email, checkProcessResult)
-      ]);
+      // 등기정보를 사용자 결과에만 저장 (스케줄 등록은 별도로)
+      await apiClient.addUserResult(user.email, checkProcessResult);
 
       alert('등기정보가 성공적으로 저장되었습니다.');
       setShowSaveOption(false);

@@ -10,6 +10,7 @@ import { CommonModule } from './common/common.module';
 import { UsersModel } from './users/entities/users.entitys';
 import { ScheduleModel } from './schedule/entities/schedule.entity';
 import { TaskLog } from './schedule/entities/task-log.entity';
+import { EmailVerification } from './auth/entities/email-verification.entity';
 import { CrawlModule } from './crawl/crawl.module';
 import { ScheduleModule } from './schedule/schedule.module';
 import { AdminModule } from './admin/admin.module';
@@ -37,7 +38,8 @@ import { AdminUserSeed } from './database/seeds/admin-user.seed';
         // PostsModel,
         UsersModel,
         ScheduleModel,
-        TaskLog
+        TaskLog,
+        EmailVerification
       ],
       synchronize: true, // 배포 시에는 자동 연동되지 않도록 false로 세팅
     }),

@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { Login, Register, Main, MyPage } from './pages';
+import { Login, Register, Main, MyPage, EmailVerificationSuccess, EmailVerificationError } from './pages';
 import { AdminLogin } from './pages/admin/AdminLogin';
 import { AdminDashboard } from './pages/admin/AdminDashboard';
 import { AdminUsers } from './pages/admin/AdminUsers';
@@ -15,6 +15,10 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/main" element={<Main />} />
         <Route path="/mypage" element={<MyPage />} />
+        
+        {/* Email Verification Routes */}
+        <Route path="/email-verification-success" element={<EmailVerificationSuccess />} />
+        <Route path="/email-verification-error" element={<EmailVerificationError />} />
         
         {/* Admin Routes */}
         <Route path="/admin/login" element={<AdminLogin />} />

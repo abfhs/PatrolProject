@@ -252,6 +252,152 @@ export class CrawlService {
     return response;
   }
 
+  /**
+   * 스케줄러 전용 로그인 세션 확보함수
+   * @returns crypted_id, cookieString
+   */
+  async getLogin(){
+
+    var id = 'abfhs64';
+
+
+    this.hostUrl = 'https://www.iros.go.kr';
+
+    const userAgent = fakeUa();
+
+    var headers: any = {
+      "Host": "www.iros.go.kr",
+      "User-Agent": userAgent,
+      "Accept": "application/json",
+      "Accept-Language": "ko-KR,ko;q=0.8,en-US;q=0.5,en;q=0.3",
+      "Accept-Encoding": "gzip, deflate, br, zstd",
+      "Referer": "https://www.iros.go.kr/index.jsp",
+      "Content-Type": "application/json; charset=\"UTF-8\"",
+      "submissionid": "mf_wfm_potal_main_wfm_content_sbm_Pm10P0LoginMngCtrl_handleMbrLogin",
+      "Origin": "https://www.iros.go.kr",
+      "Connection": "keep-alive",
+      "Priority": "u=0"
+    }
+
+    var bodyJson : any;
+
+    bodyJson = {"websquare_param":{"user_id": id,"mbr_pw":"joonzero1!","general_login_yn":"Y","user_id_g": id,"mbr_pw_g":"joonzero1!"}}
+    var url =  this.hostUrl + "/biz/Pm10P0LoginMngCtrl/handleMbrLogin.do?IS_NMBR_LOGIN__=null?IS_NMBR_LOGIN__=null?IS_NMBR_LOGIN__=null";
+    var resultData = await this.fetchData('post', url, headers, bodyJson);
+
+    if( 
+      resultData.user_id != id ||
+      !resultData.crypted_id
+    ){
+      throw new BadGatewayException('로그인 오류, 등기소 확인필요.')          
+    }
+
+    const unixTimestamp: number = Math.floor(Date.now() / 1000);
+
+    var cookieString = '; userId=' + id + '; popupIdOTP-CM-001=OTP-CM-001; lastAccess=' + unixTimestamp + '000; '
+
+    var crypted_id = resultData.crypted_id;
+
+    return {id, crypted_id, cookieString}
+  }
+
+  /**
+   * 스케줄러 전용 조회함수
+   * @returns {등기조회결과}
+   */
+  async getChuriData(
+    id: string,
+    crypted_id: string,
+    cookieString: string,
+    addressPin: string,
+    ownerName: string,
+    address: string,
+  ){
+    this.hostUrl = 'https://www.iros.go.kr';
+
+    const userAgent = fakeUa();
+    this.cookieString = cookieString;
+
+    var headers: any = {
+      "Host": "www.iros.go.kr",
+      "User-Agent": userAgent,
+      "Accept": "application/json",
+      "Accept-Language": "ko-KR,ko;q=0.8,en-US;q=0.5,en;q=0.3",
+      "Accept-Encoding": "gzip, deflate, br, zstd",
+      "Referer": "https://www.iros.go.kr/index.jsp",
+      "Content-Type": "application/json; charset=\"UTF-8\"",
+      "submissionid": "mf_wfm_potal_main_wfm_content_sbm_Pr10SprtApplCsprCsInqCtrl_retrieveRealAdrno",
+      "Origin": "https://www.iros.go.kr",
+      "Connection": "keep-alive",
+      "Priority": "u=0"
+    }
+
+    var bodyJson : any;
+
+    bodyJson ={
+      "websquare_param": {
+        "pin": addressPin,
+        "addrCls": 3,
+        "real_indi_cont": address,
+        "real_cls": "",
+        "search_cls": ""
+      }
+    }
+    var url =  this.hostUrl + "/biz/Pr10SprtApplCsprCsInqCtrl/retrieveRealAdrno.do?CRYPTED_ID__=" + crypted_id + "&USER_ID__=" + id + "&IS_NMBR_LOGIN__=null&IS_NMBR_LOGIN__=null&IS_NMBR_LOGIN__=null&IS_NMBR_LOGIN__=null&IS_NMBR_LOGIN__=null";
+    var resultData = await this.fetchData('post', url, headers, bodyJson);
+    if(resultData.result != 'SUCC'){
+      throw new BadGatewayException('인터넷등기소 사이트 변경, 확인필요') 
+    }
+
+    bodyJson = {
+    "websquare_param": {
+      "addrCls": 3,
+      "a103Name": ownerName,
+      "nameType": "2",
+      "a105pin": addressPin,
+      "regt_no": "",
+      "regt_ver": "",
+      "search_cls": "109",
+      "pass": ""
+    },
+    "smplData": {
+      "pin": addressPin,
+      "addrCls": 3,
+      "real_indi_cont": address,
+      "real_cls": "",
+      "search_cls": "109"
+    },
+    "addrData": {
+      "selKindCls": "",
+      "real_cls": "",
+      "admin_regn1": "",
+      "admin_regn2": "",
+      "admin_regn3": "",
+      "lot_no": "",
+      "buld_name": "",
+      "buld_no_buld": "",
+      "buld_no_room": "",
+      "rd_name": "",
+      "rd_buld_no": "",
+      "txt_addr_cls": "",
+      "close_cls": "",
+      "search_cls": "",
+      "admin_regn1_cd": ""
+    }
+  }
+    headers.submissionid = 'mf_wfm_potal_main_wfm_content_sbm_Pr10SprtApplCsprCsInqCtrl_retrieveApplCsprCsList';
+    var url =  this.hostUrl + "/biz/Pr10SprtApplCsprCsInqCtrl/retrieveApplCsprCsList.do?CRYPTED_ID__=" + crypted_id + "&USER_ID__=" + id + "&IS_NMBR_LOGIN__=null&IS_NMBR_LOGIN__=null";
+    var resultData = await this.fetchData('post', url, headers, bodyJson);
+    
+    if(resultData.result != 'SUCC'){
+      throw new BadGatewayException('인터넷등기소 사이트 변경, 확인필요') 
+    }
+
+    const response = resultData.applCsprCsList[0];
+
+    return response;
+  }
+
   async fetchData(
     /**
      * HTTP 요청 메서드

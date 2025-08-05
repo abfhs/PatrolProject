@@ -16,4 +16,11 @@ export class ScheduleModel extends BaseModel {
 
   @Column()
   address: string;
+
+  @Column({
+    type: 'json',
+    nullable: true,
+    default: null,
+  })
+  crawlResult: any;
 }

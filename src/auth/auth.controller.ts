@@ -1,5 +1,6 @@
-import { Controller, Post, Body, Headers, UseGuards, Request, Res} from '@nestjs/common';
+import { Controller, Post, Body, Headers, UseGuards, Request, Res, Get, Param} from '@nestjs/common';
 import { AuthService } from './auth.service';
+import { EmailVerificationService } from './services/email-verification.service';
 import { MaxLengthPipe, MinLengthPipe, PasswordPipe } from './pipe/password.pipe';
 import { BasicTokenGuard } from './guard/basic-token.guard';
 import { AccessTokenGuard, RefreshTokenGuard } from './guard/bearer-token.guard';
@@ -7,9 +8,10 @@ import { Response } from 'express';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {
-
-  }
+  constructor(
+    private readonly authService: AuthService,
+    private readonly emailVerificationService: EmailVerificationService,
+  ) {}
 
   @Post('token/access')
   @UseGuards(RefreshTokenGuard)
@@ -66,5 +68,35 @@ export class AuthController {
       email,
       password,
     })
+  }
+
+  // 이메일 인증을 위한 인증 메일 발송
+  @Post('send-verification-email')
+  @UseGuards(AccessTokenGuard)
+  async sendVerificationEmail(@Request() req) {
+    const userId = req.user.id;
+    return this.emailVerificationService.sendVerificationEmail(userId);
+  }
+
+  // 이메일 인증 완료 처리
+  @Get('verify-email/:token')
+  async verifyEmail(@Param('token') token: string, @Res() res: Response) {
+    try {
+      const result = await this.emailVerificationService.verifyEmail(token);
+      
+      // 인증 성공 시 프론트엔드로 리다이렉트 (성공 페이지)
+      return res.redirect(`http://localhost:5173/email-verification-success?message=${encodeURIComponent(result.message)}`);
+    } catch (error) {
+      // 인증 실패 시 프론트엔드로 리다이렉트 (실패 페이지)
+      return res.redirect(`http://localhost:5173/email-verification-error?error=${encodeURIComponent(error.message)}`);
+    }
+  }
+
+  // 사용자의 이메일 인증 상태 확인
+  @Get('verification-status')
+  @UseGuards(AccessTokenGuard)
+  async getVerificationStatus(@Request() req) {
+    const userId = req.user.id;
+    return this.emailVerificationService.getVerificationStatus(userId);
   }
 }

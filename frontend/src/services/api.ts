@@ -168,6 +168,14 @@ class ApiClient {
     return response.data;
   }
 
+  async saveCrawlResult(scheduleId: number, crawlResult: any): Promise<any> {
+    const response: AxiosResponse<any> = await this.client.put(
+      `/schedule/${scheduleId}/crawl-result`,
+      { crawlResult }
+    );
+    return response.data;
+  }
+
   // Admin methods
   async getAdminDashboard(): Promise<any> {
     const response: AxiosResponse<any> = await this.client.get(
@@ -262,6 +270,27 @@ class ApiClient {
         },
       }
     );
+    return response.data;
+  }
+
+  // Email verification methods
+  async sendVerificationEmail(): Promise<{ message: string }> {
+    const response: AxiosResponse<{ message: string }> = await this.client.post(
+      '/auth/send-verification-email'
+    );
+    return response.data;
+  }
+
+  async getVerificationStatus(): Promise<{
+    isVerified: boolean;
+    hasActiveToken: boolean;
+    expiresAt?: string;
+  }> {
+    const response: AxiosResponse<{
+      isVerified: boolean;
+      hasActiveToken: boolean;
+      expiresAt?: string;
+    }> = await this.client.get('/auth/verification-status');
     return response.data;
   }
 }

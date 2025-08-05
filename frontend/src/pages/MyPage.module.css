@@ -54,6 +54,16 @@
   flex: 1;
 }
 
+.verified {
+  color: #4caf50 !important;
+  font-weight: 600;
+}
+
+.unverified {
+  color: #f44336 !important;
+  font-weight: 600;
+}
+
 .savedResults {
   margin-top: 40px;
 }
@@ -102,6 +112,28 @@
   box-shadow: 0 6px 20px rgba(255, 193, 7, 0.2);
 }
 
+.registeredItem {
+  background: rgba(220, 38, 38, 0.8) !important;
+  border: 1px solid rgba(239, 68, 68, 0.6) !important;
+}
+
+.registeredItem:hover {
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.3) !important;
+}
+
+.registeredBadge {
+  background: rgba(34, 197, 94, 0.9);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .resultHeader {
   display: flex;
   justify-content: space-between;
@@ -109,6 +141,12 @@
   margin-bottom: 15px;
   padding-bottom: 10px;
   border-bottom: 1px solid rgba(255, 193, 7, 0.2);
+}
+
+.resultTitleSection {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
 }
 
 .resultTitle {
@@ -120,6 +158,11 @@
 .resultTimestamp {
   color: var(--text-secondary);
   font-size: 0.85rem;
+}
+
+.scheduleButton {
+  margin: 0;
+  white-space: nowrap;
 }
 
 .resultTable {
@@ -189,8 +232,16 @@
 
   .resultHeader {
     flex-direction: column;
-    gap: 8px;
+    gap: 10px;
+    align-items: stretch;
+  }
+
+  .resultTitleSection {
     align-items: flex-start;
+  }
+
+  .scheduleButton {
+    align-self: flex-end;
   }
 
   .resultTable th {

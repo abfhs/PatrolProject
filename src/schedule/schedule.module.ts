@@ -7,6 +7,7 @@ import { ScheduleService } from './schedule.service';
 import { ScheduleController } from './schedule.controller';
 import { AuthModule } from '../auth/auth.module';
 import { UsersModule } from '../users/users.module';
+import { CrawlModule } from '../crawl/crawl.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { UsersModule } from '../users/users.module';
     TypeOrmModule.forFeature([ScheduleModel, TaskLog]),
     AuthModule, // AccessTokenGuard 사용을 위해 AuthModule import
     UsersModule, // AccessTokenGuard가 UsersService에 의존하므로 UsersModule import
+    CrawlModule, // CrawlService 사용을 위해 CrawlModule import
   ],
   controllers: [ScheduleController],
   providers: [ScheduleService],
