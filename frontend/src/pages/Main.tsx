@@ -74,7 +74,7 @@ export const Main = () => {
         setShowNameInput(false);
         setProcessCompleted(false);
       }, 2000);
-    } catch (error) {
+    } catch {
       // Error handling is done in the hook
       setIsFormHiding(false);
     }
@@ -86,7 +86,7 @@ export const Main = () => {
       setShowNameInput(true);
       setProcessCompleted(true);
       alert('프로세스 크롤링이 완료되었습니다.');
-    } catch (error) {
+    } catch {
       // Error handling is done in the hook
     }
   };
@@ -105,7 +105,7 @@ export const Main = () => {
       // 성공 시 checkProcess 완료 상태로 변경
       setCheckProcessCompleted(true);
       setShowSaveOption(true);
-    } catch (error) {
+    } catch {
       // Error handling is done in the hook
     }
   };

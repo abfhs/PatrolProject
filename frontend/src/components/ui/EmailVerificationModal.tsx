@@ -29,9 +29,12 @@ export const EmailVerificationModal = ({
       await onSendEmail();
       setEmailSent(true);
       alert('인증 이메일이 발송되었습니다. 이메일을 확인하고 인증 링크를 클릭한 후 아래 "인증 확인" 버튼을 눌러주세요.');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('이메일 발송 실패:', error);
-      alert(error.response?.data?.message || '이메일 발송에 실패했습니다.');
+      const errorMessage = error instanceof Error && 'response' in error 
+        ? (error as any).response?.data?.message 
+        : '이메일 발송에 실패했습니다.';
+      alert(errorMessage);
     } finally {
       setIsSending(false);
     }
@@ -49,7 +52,7 @@ export const EmailVerificationModal = ({
       } else {
         alert('아직 인증이 완료되지 않았습니다. 이메일의 인증 링크를 클릭한 후 다시 시도해주세요.');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('인증 상태 확인 실패:', error);
       alert('인증 상태 확인에 실패했습니다.');
     } finally {

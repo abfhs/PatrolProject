@@ -16,7 +16,7 @@ export const Register = () => {
     
     try {
       await register({ email, nickname, password });
-    } catch (error) {
+    } catch {
       // Error handling is done in the hook
     }
   };

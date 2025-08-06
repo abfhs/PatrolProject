@@ -29,8 +29,11 @@ export const useCrawl = () => {
       
       setAddressList(response.addressList || []);
       return response;
-    } catch (error: any) {
-      setError(error.response?.data?.message || '주소 검색에 실패했습니다.');
+    } catch (error: unknown) {
+      const errorMessage = error && typeof error === 'object' && 'response' in error
+        ? (error as any).response?.data?.message || '주소 검색에 실패했습니다.'
+        : '주소 검색에 실패했습니다.';
+      setError(errorMessage);
       throw error;
     } finally {
       setIsLoading(false);
@@ -64,8 +67,11 @@ export const useCrawl = () => {
 
       setProcessResult(response);
       return response;
-    } catch (error: any) {
-      setError(error.response?.data?.message || '프로세스 크롤링에 실패했습니다.');
+    } catch (error: unknown) {
+      const errorMessage = error && typeof error === 'object' && 'response' in error
+        ? (error as any).response?.data?.message || '프로세스 크롤링에 실패했습니다.'
+        : '프로세스 크롤링에 실패했습니다.';
+      setError(errorMessage);
       throw error;
     } finally {
       setIsLoading(false);
@@ -110,8 +116,11 @@ export const useCrawl = () => {
 
       setCheckProcessResult(response);
       return response;
-    } catch (error: any) {
-      setError(error.response?.data?.message || '프로세스 확인에 실패했습니다.');
+    } catch (error: unknown) {
+      const errorMessage = error && typeof error === 'object' && 'response' in error
+        ? (error as any).response?.data?.message || '프로세스 확인에 실패했습니다.'
+        : '프로세스 확인에 실패했습니다.';
+      setError(errorMessage);
       throw error;
     } finally {
       setIsLoading(false);

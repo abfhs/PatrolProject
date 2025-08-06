@@ -162,9 +162,9 @@ export const MyPage = () => {
       }
 
       // localStorage에서 추가 정보 확인 (없으면 사용자에게 입력 받을 수도 있음)
-      let addressPin = result.a105_pin;
-      let ownerName = localStorage.getItem('ownerName'); // 마지막 입력값 사용
-      let address = result.a105real_indi_cont;
+      const addressPin = result.a105_pin;
+      const ownerName = localStorage.getItem('ownerName'); // 마지막 입력값 사용
+      const address = result.a105real_indi_cont;
 
       // 필수 정보가 없는 경우 사용자에게 알림
       if (!addressPin || !address) {

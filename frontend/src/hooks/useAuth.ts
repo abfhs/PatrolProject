@@ -25,16 +25,19 @@ export const useAuth = () => {
       
       // Navigate to main page
       navigate('/main');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Login error:', error);
       let errorMessage = '로그인에 실패했습니다.';
       
-      if (error.response?.status === 401) {
-        errorMessage = '이메일 또는 비밀번호가 올바르지 않습니다.';
-      } else if (error.response?.status === 500) {
-        errorMessage = '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
-      } else if (error.response?.data?.message) {
-        errorMessage = error.response.data.message;
+      if (error && typeof error === 'object' && 'response' in error) {
+        const axiosError = error as any;
+        if (axiosError.response?.status === 401) {
+          errorMessage = '이메일 또는 비밀번호가 올바르지 않습니다.';
+        } else if (axiosError.response?.status === 500) {
+          errorMessage = '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
+        } else if (axiosError.response?.data?.message) {
+          errorMessage = axiosError.response.data.message;
+        }
       }
       
       setError(errorMessage);
@@ -58,8 +61,11 @@ export const useAuth = () => {
       
       // Navigate to main page
       navigate('/main');
-    } catch (error: any) {
-      setError(error.response?.data?.message || '회원가입에 실패했습니다.');
+    } catch (error: unknown) {
+      const errorMessage = error && typeof error === 'object' && 'response' in error
+        ? (error as any).response?.data?.message || '회원가입에 실패했습니다.'
+        : '회원가입에 실패했습니다.';
+      setError(errorMessage);
       throw error;
     } finally {
       setIsLoading(false);
