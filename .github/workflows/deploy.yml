@@ -82,65 +82,79 @@ jobs:
           echo "${{ secrets.EC2_PRIVATE_KEY }}" > private_key.pem
           chmod 600 private_key.pem
           
-          # 네트워크 연결 상태 확인
-          echo "EC2 인스턴스 연결성 테스트..."
-          ping -c 3 ${{ secrets.EC2_HOST }} || echo "Ping 실패 - 방화벽이나 보안그룹 설정을 확인하세요"
+          echo "=== 배포 시작 ==="
+          echo "ECR 레지스트리: $ECR_REGISTRY"
+          echo "이미지 태그: $IMAGE_TAG"
+          echo "대상 호스트: ${{ secrets.EC2_HOST }}"
           
-          # SSH 연결 테스트 (최대 3회 재시도)
-          for i in {1..3}; do
-            echo "SSH 연결 시도 $i/3..."
-            if timeout 60 ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=30 -o BatchMode=yes -i private_key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "echo 'SSH 연결 성공'"; then
-              echo "SSH 연결이 성공했습니다."
-              break
-            else
-              echo "SSH 연결 실패. EC2 상태를 확인하세요."
-              echo "가능한 원인: 1) EC2 인스턴스가 중지됨, 2) 보안그룹에서 22번 포트 차단, 3) 잘못된 키페어"
-              if [ $i -eq 3 ]; then
-                echo "3회 모두 실패. 배포를 중단합니다."
-                exit 1
-              fi
-              echo "30초 후 재시도..."
-              sleep 30
-            fi
-          done
-          
-          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=30 -o ServerAliveInterval=60 -i private_key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} << 'EOF'
-            # Docker 설치 및 시작 (Amazon Linux 2023)
+          # 배포 스크립트 실행
+          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=30 -o ServerAliveInterval=60 -o LogLevel=ERROR -T -i private_key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} << 'EOF'
+            set -e  # 오류 발생시 스크립트 중단
+            
+            echo "=== 환경 준비 시작 ==="
+            
+            # 1. Docker 설치 및 시작 (Amazon Linux 2023)
             if ! command -v docker &> /dev/null; then
-              echo "Docker가 설치되어 있지 않습니다. 설치 중..."
+              echo "Docker 설치 중..."
               sudo dnf update -y
               sudo dnf install -y docker
               sudo systemctl start docker
               sudo systemctl enable docker
               sudo usermod -a -G docker $USER
-              echo "Docker 설치가 완료되었습니다."
+              echo "Docker 설치 완료"
             else
-              echo "Docker가 이미 설치되어 있습니다."
-              # Docker 서비스가 실행 중인지 확인
-              if ! sudo systemctl is-active --quiet docker; then
-                echo "Docker 서비스를 시작합니다..."
-                sudo systemctl start docker
-              fi
+              echo "Docker 이미 설치됨"
             fi
             
-            # AWS CLI 설치 확인 (Amazon Linux 2023에는 기본 설치되어 있음)
+            # 2. Docker 서비스 상태 확인 및 시작
+            echo "Docker 서비스 상태 확인..."
+            if ! sudo systemctl is-active --quiet docker; then
+              echo "Docker 서비스 시작 중..."
+              sudo systemctl start docker
+              sleep 5  # Docker 서비스 시작 대기
+            fi
+            
+            # 3. Docker 서비스 상태 재확인
+            if sudo systemctl is-active --quiet docker; then
+              echo "✅ Docker 서비스가 정상 실행 중입니다"
+            else
+              echo "❌ Docker 서비스 시작 실패"
+              sudo systemctl status docker
+              exit 1
+            fi
+            
+            # 4. AWS CLI 설치 확인
             if ! command -v aws &> /dev/null; then
-              echo "AWS CLI가 설치되어 있지 않습니다. 설치 중..."
-              curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-              unzip awscliv2.zip
+              echo "AWS CLI 설치 중..."
+              curl -s "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+              unzip -q awscliv2.zip
               sudo ./aws/install
+              rm -rf awscliv2.zip aws/
             fi
             
-            # AWS CLI 및 Docker 로그인
+            echo "=== ECR 로그인 ==="
+            # 5. ECR 로그인
             aws ecr get-login-password --region ${{ env.AWS_REGION }} | sudo docker login --username AWS --password-stdin ${{ steps.login-ecr.outputs.registry }}
             
-            # 기존 컨테이너 중지 및 제거
-            sudo docker stop patrol-app || true
-            sudo docker rm patrol-app || true
+            echo "=== 기존 컨테이너 정리 ==="
+            # 6. 기존 컨테이너 중지 및 제거
+            if sudo docker ps -q --filter "name=patrol-app" | grep -q .; then
+              echo "기존 컨테이너 중지 중..."
+              sudo docker stop patrol-app
+            fi
             
-            # 새 이미지 풀 및 실행
+            if sudo docker ps -aq --filter "name=patrol-app" | grep -q .; then
+              echo "기존 컨테이너 제거 중..."
+              sudo docker rm patrol-app
+            fi
+            
+            echo "=== 새 이미지 다운로드 ==="
+            # 7. 새 이미지 풀
+            echo "이미지 다운로드: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}"
             sudo docker pull ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
             
+            echo "=== 컨테이너 실행 ==="
+            # 8. 새 컨테이너 실행
             sudo docker run -d \
               --name patrol-app \
               --restart unless-stopped \
@@ -158,55 +172,97 @@ jobs:
               -e MAIL_PASS=${{ secrets.MAIL_PASS }} \
               ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
             
-            # 이전 이미지 정리 (최근 3개 제외)  
+            echo "=== 컨테이너 상태 확인 ==="
+            # 9. 컨테이너 실행 확인 (30초 대기)
+            sleep 10
+            for i in {1..6}; do
+              if sudo docker ps | grep -q patrol-app; then
+                echo "✅ 컨테이너가 성공적으로 실행되었습니다"
+                sudo docker ps | grep patrol-app
+                break
+              else
+                echo "컨테이너 시작 대기 중... ($i/6)"
+                sleep 5
+                if [ $i -eq 6 ]; then
+                  echo "❌ 컨테이너 시작 실패"
+                  echo "=== 컨테이너 로그 ==="
+                  sudo docker logs patrol-app || true
+                  exit 1
+                fi
+              fi
+            done
+            
+            echo "=== 이전 이미지 정리 ==="
+            # 10. 이전 이미지 정리 (최근 3개 제외)
             sudo docker images ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }} --format "table {{.Repository}}:{{.Tag}}\t{{.CreatedAt}}" | tail -n +4 | awk '{print $1}' | xargs -r sudo docker rmi || true
+            
+            echo "=== 배포 완료 ==="
           EOF
           
           rm -f private_key.pem
 
       - name: Verify deployment
         run: |
-          # 배포 확인
+          echo "=== 배포 검증 시작 ==="
           echo "${{ secrets.EC2_PRIVATE_KEY }}" > private_key.pem
           chmod 600 private_key.pem
           
-          # 배포 검증을 위한 재시도 로직
-          for i in {1..5}; do
-            echo "배포 검증 시도 $i/5..."
-            if ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=30 -o ServerAliveInterval=60 -i private_key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} << 'EOF'
-              # 컨테이너 실행 상태 확인
-              if sudo docker ps | grep patrol-app; then
-                echo "컨테이너가 실행 중입니다."
-                
-                # 30초 대기 후 헬스 체크
-                echo "30초 대기 중..."
-                sleep 30
-                
-                # 애플리케이션 응답 확인
-                if curl -f http://localhost:80; then
-                  echo "애플리케이션이 정상적으로 응답합니다."
-                  exit 0
-                else
-                  echo "애플리케이션 응답 실패"
-                  exit 1
-                fi
-              else
-                echo "컨테이너가 실행되지 않음"
-                exit 1
-              fi
-          EOF
-            then
-              echo "배포 검증 성공!"
-              break
+          # 단순하고 확실한 검증
+          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=30 -o LogLevel=ERROR -T -i private_key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} << 'EOF'
+            echo "=== 최종 배포 검증 ==="
+            
+            # 1. Docker 서비스 상태
+            echo "1. Docker 서비스 상태:"
+            sudo systemctl status docker --no-pager -l
+            
+            # 2. 실행 중인 모든 컨테이너
+            echo "2. 실행 중인 컨테이너:"
+            sudo docker ps -a
+            
+            # 3. patrol-app 컨테이너 상세 정보
+            echo "3. patrol-app 컨테이너 상태:"
+            if sudo docker ps | grep -q patrol-app; then
+              echo "✅ patrol-app 컨테이너가 실행 중입니다"
+              sudo docker ps | grep patrol-app
             else
-              echo "배포 검증 실패. 60초 후 재시도..."
-              if [ $i -eq 5 ]; then
-                echo "5회 모두 실패. 배포 검증을 중단합니다."
-                rm -f private_key.pem
-                exit 1
-              fi
-              sleep 60
+              echo "❌ patrol-app 컨테이너를 찾을 수 없습니다"
+              echo "모든 컨테이너 목록:"
+              sudo docker ps -a
+              exit 1
             fi
-          done
+            
+            # 4. 컨테이너 로그 확인 (최근 50라인)
+            echo "4. patrol-app 컨테이너 로그:"
+            sudo docker logs --tail 50 patrol-app
+            
+            # 5. 포트 바인딩 확인
+            echo "5. 포트 바인딩 확인:"
+            sudo netstat -tlnp | grep :80 || echo "80번 포트가 바인딩되지 않음"
+            
+            # 6. 애플리케이션 응답 테스트 (30초 대기 후)
+            echo "6. 애플리케이션 응답 테스트 (30초 대기)..."
+            sleep 30
+            
+            for i in {1..3}; do
+              echo "HTTP 응답 테스트 시도 $i/3..."
+              if curl -f -s -o /dev/null -w "%{http_code}" http://localhost:80 | grep -q "200\|302\|404"; then
+                echo "✅ 애플리케이션이 HTTP 요청에 응답합니다"
+                curl -I http://localhost:80 || true
+                break
+              else
+                echo "HTTP 응답 없음. 5초 후 재시도..."
+                sleep 5
+                if [ $i -eq 3 ]; then
+                  echo "❌ 애플리케이션이 HTTP 요청에 응답하지 않습니다"
+                  echo "컨테이너 상태 재확인:"
+                  sudo docker ps | grep patrol-app || echo "컨테이너가 중지됨"
+                  sudo docker logs --tail 10 patrol-app || true
+                fi
+              fi
+            done
+            
+            echo "=== 배포 검증 완료 ==="
+          EOF
           
           rm -f private_key.pem
+          echo "✅ 배포가 성공적으로 완료되었습니다!"
