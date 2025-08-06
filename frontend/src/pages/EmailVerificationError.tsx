@@ -74,7 +74,7 @@ export const EmailVerificationError = () => {
               메인 페이지로
             </Button>
             <Button 
-              variant="outline" 
+              variant="secondary" 
               onClick={handleGoToMyPage}
               className={styles.button}
             >

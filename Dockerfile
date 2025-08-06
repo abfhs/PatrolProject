@@ -22,10 +22,10 @@ RUN npm ci
 
 # Copy backend source
 COPY . .
-COPY --from=frontend-builder /app/frontend/dist ./public
+COPY --from=frontend-builder /app/public ./public
 
-# Build backend
-RUN npm run build
+# Build backend (skip frontend since it's already built)
+RUN npx nest build
 
 # Production stage
 FROM node:20-alpine
