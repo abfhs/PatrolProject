@@ -72,7 +72,7 @@ class ApiClient {
     const envUrl = import.meta.env.VITE_API_BASE_URL;
     if (envUrl) {
       console.log('API Base URL from env:', envUrl);
-      return envUrl;
+      return `${envUrl}/api`; // API prefix 추가
     }
 
     // 환경 변수가 없는 경우 자동 감지
@@ -82,7 +82,7 @@ class ApiClient {
       // 개발 환경 감지 (localhost, 127.0.0.1, 또는 특정 포트)
       if (hostname === 'localhost' || hostname === '127.0.0.1' || port === '5173') {
         console.log('Development environment detected');
-        return 'http://localhost:3000';
+        return 'http://localhost:3000/api'; // API prefix 추가
       }
       
       // 배포 환경 - 현재 호스트 사용
@@ -90,12 +90,12 @@ class ApiClient {
         ? `${protocol}//${hostname}:${port}` 
         : `${protocol}//${hostname}`;
       
-      console.log('Production environment detected, using:', baseUrl);
-      return baseUrl;
+      console.log('Production environment detected, using:', `${baseUrl}/api`);
+      return `${baseUrl}/api`; // API prefix 추가
     }
     
     // SSR 환경에서의 fallback
-    return 'http://localhost:3000';
+    return 'http://localhost:3000/api'; // API prefix 추가
   }
 
   // Auth methods

@@ -13,7 +13,7 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost:3000',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ''),
+        // rewrite 제거 - 이제 백엔드가 /api prefix를 처리함
       },
     },
   },
