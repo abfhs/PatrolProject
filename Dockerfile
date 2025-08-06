@@ -5,7 +5,7 @@ WORKDIR /app/frontend
 
 # Copy frontend package files
 COPY frontend/package*.json ./
-RUN npm ci --only=production
+RUN npm ci
 
 # Copy frontend source and build
 COPY frontend/ ./
@@ -18,7 +18,7 @@ WORKDIR /app
 
 # Copy backend package files
 COPY package*.json ./
-RUN npm ci --only=production
+RUN npm ci
 
 # Copy backend source
 COPY . .
@@ -39,11 +39,13 @@ RUN apk add --no-cache dumb-init
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S nestjs -u 1001
 
+# Copy package files and install production dependencies only
+COPY --from=backend-builder --chown=nestjs:nodejs /app/package*.json ./
+RUN npm ci --omit=dev
+
 # Copy built application
 COPY --from=backend-builder --chown=nestjs:nodejs /app/dist ./dist
-COPY --from=backend-builder --chown=nestjs:nodejs /app/node_modules ./node_modules
 COPY --from=backend-builder --chown=nestjs:nodejs /app/public ./public
-COPY --from=backend-builder --chown=nestjs:nodejs /app/package*.json ./
 
 # Switch to non-root user
 USER nestjs
