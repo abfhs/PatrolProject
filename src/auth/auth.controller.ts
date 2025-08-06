@@ -85,10 +85,12 @@ export class AuthController {
       const result = await this.emailVerificationService.verifyEmail(token);
       
       // 인증 성공 시 프론트엔드로 리다이렉트 (성공 페이지)
-      return res.redirect(`http://localhost:5173/email-verification-success?message=${encodeURIComponent(result.message)}`);
+      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+      return res.redirect(`${frontendUrl}/email-verification-success?message=${encodeURIComponent(result.message)}`);
     } catch (error) {
       // 인증 실패 시 프론트엔드로 리다이렉트 (실패 페이지)
-      return res.redirect(`http://localhost:5173/email-verification-error?error=${encodeURIComponent(error.message)}`);
+      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+      return res.redirect(`${frontendUrl}/email-verification-error?error=${encodeURIComponent(error.message)}`);
     }
   }
 

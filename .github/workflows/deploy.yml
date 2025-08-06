@@ -176,11 +176,15 @@ jobs:
               -e DATABASE_PASSWORD="${{ secrets.DATABASE_PASSWORD }}" \
               -e DATABASE_NAME="${{ secrets.DATABASE_NAME }}" \
               -e JWT_SECRET="${{ secrets.JWT_SECRET }}" \
+              -e ADMIN_EMAIL="${{ secrets.ADMIN_EMAIL }}" \
+              -e ADMIN_PASSWORD="${{ secrets.ADMIN_PASSWORD }}" \
+              -e ADMIN_NICKNAME="${{ secrets.ADMIN_NICKNAME }}" \
               -e MAIL_HOST="${{ secrets.MAIL_HOST }}" \
               -e MAIL_PORT="${{ secrets.MAIL_PORT }}" \
               -e MAIL_USER="${{ secrets.MAIL_USER }}" \
               -e MAIL_PASS="${{ secrets.MAIL_PASS }}" \
-              -e BASE_URL="http://54.180.132.32" \
+              -e BASE_URL="http://${{ secrets.EC2_HOST }}" \
+              -e FRONTEND_URL="http://${{ secrets.EC2_HOST }}" \
               "$ECR_IMAGE"
             
             echo "=== 컨테이너 상태 확인 ==="
