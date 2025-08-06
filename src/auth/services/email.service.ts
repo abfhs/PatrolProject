@@ -97,9 +97,11 @@ export class EmailService {
 
   private getBaseUrl(): string {
     // 이메일 인증 링크는 백엔드 API로 가야 함
-    return process.env.NODE_ENV === 'production' 
-      ? 'https://yourproductiondomain.com'
-      : 'http://localhost:3000';
+    if (process.env.NODE_ENV === 'production') {
+      // 환경 변수에서 BASE_URL을 가져오거나 기본값 사용
+      return process.env.BASE_URL || 'http://54.180.132.32';
+    }
+    return 'http://localhost:3000';
   }
 
   private getVerificationEmailTemplate(verificationUrl: string): string {

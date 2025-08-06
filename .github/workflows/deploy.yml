@@ -180,6 +180,7 @@ jobs:
               -e MAIL_PORT="${{ secrets.MAIL_PORT }}" \
               -e MAIL_USER="${{ secrets.MAIL_USER }}" \
               -e MAIL_PASS="${{ secrets.MAIL_PASS }}" \
+              -e BASE_URL="http://54.180.132.32" \
               "$ECR_IMAGE"
             
             echo "=== 컨테이너 상태 확인 ==="

@@ -16,9 +16,12 @@ import type {
 
 class ApiClient {
   private client: AxiosInstance;
-  private baseURL = 'http://localhost:3000';
+  private baseURL: string;
 
   constructor() {
+    // 환경에 따른 API URL 설정
+    this.baseURL = this.getApiBaseUrl();
+    
     this.client = axios.create({
       baseURL: this.baseURL,
       headers: {
@@ -62,6 +65,37 @@ class ApiClient {
         return Promise.reject(error);
       }
     );
+  }
+
+  private getApiBaseUrl(): string {
+    // Vite 환경 변수 사용 (VITE_ 접두사 필요)
+    const envUrl = import.meta.env.VITE_API_BASE_URL;
+    if (envUrl) {
+      console.log('API Base URL from env:', envUrl);
+      return envUrl;
+    }
+
+    // 환경 변수가 없는 경우 자동 감지
+    if (typeof window !== 'undefined') {
+      const { protocol, hostname, port } = window.location;
+      
+      // 개발 환경 감지 (localhost, 127.0.0.1, 또는 특정 포트)
+      if (hostname === 'localhost' || hostname === '127.0.0.1' || port === '5173') {
+        console.log('Development environment detected');
+        return 'http://localhost:3000';
+      }
+      
+      // 배포 환경 - 현재 호스트 사용
+      const baseUrl = port && port !== '80' && port !== '443' 
+        ? `${protocol}//${hostname}:${port}` 
+        : `${protocol}//${hostname}`;
+      
+      console.log('Production environment detected, using:', baseUrl);
+      return baseUrl;
+    }
+    
+    // SSR 환경에서의 fallback
+    return 'http://localhost:3000';
   }
 
   // Auth methods
