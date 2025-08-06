@@ -91,7 +91,15 @@ jobs:
           ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=30 -o ServerAliveInterval=60 -o LogLevel=ERROR -T -i private_key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} << 'EOF'
             set -e  # 오류 발생시 스크립트 중단
             
+            # 환경 변수 직접 설정
+            ECR_REGISTRY="${{ steps.login-ecr.outputs.registry }}"
+            ECR_REPOSITORY="${{ env.ECR_REPOSITORY }}"
+            IMAGE_TAG="${{ github.sha }}"
+            AWS_REGION="${{ env.AWS_REGION }}"
+            ECR_IMAGE="$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+            
             echo "=== 환경 준비 시작 ==="
+            echo "ECR 이미지: $ECR_IMAGE"
             
             # 1. Docker 설치 및 시작 (Amazon Linux 2023)
             if ! command -v docker &> /dev/null; then
@@ -134,7 +142,7 @@ jobs:
             
             echo "=== ECR 로그인 ==="
             # 5. ECR 로그인
-            aws ecr get-login-password --region ${{ env.AWS_REGION }} | sudo docker login --username AWS --password-stdin ${{ steps.login-ecr.outputs.registry }}
+            aws ecr get-login-password --region $AWS_REGION | sudo docker login --username AWS --password-stdin $ECR_REGISTRY
             
             echo "=== 기존 컨테이너 정리 ==="
             # 6. 기존 컨테이너 중지 및 제거
@@ -150,27 +158,29 @@ jobs:
             
             echo "=== 새 이미지 다운로드 ==="
             # 7. 새 이미지 풀
-            echo "이미지 다운로드: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}"
-            sudo docker pull ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
+            echo "이미지 다운로드: $ECR_IMAGE"
+            sudo docker pull "$ECR_IMAGE"
             
             echo "=== 컨테이너 실행 ==="
             # 8. 새 컨테이너 실행
+            echo "컨테이너 실행할 이미지: $ECR_IMAGE"
+            
             sudo docker run -d \
               --name patrol-app \
               --restart unless-stopped \
               -p 80:3000 \
               -e NODE_ENV=production \
-              -e DATABASE_HOST=${{ secrets.DATABASE_HOST }} \
-              -e DATABASE_PORT=${{ secrets.DATABASE_PORT }} \
-              -e DATABASE_USER=${{ secrets.DATABASE_USER }} \
-              -e DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }} \
-              -e DATABASE_NAME=${{ secrets.DATABASE_NAME }} \
-              -e JWT_SECRET=${{ secrets.JWT_SECRET }} \
-              -e MAIL_HOST=${{ secrets.MAIL_HOST }} \
-              -e MAIL_PORT=${{ secrets.MAIL_PORT }} \
-              -e MAIL_USER=${{ secrets.MAIL_USER }} \
-              -e MAIL_PASS=${{ secrets.MAIL_PASS }} \
-              ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
+              -e DATABASE_HOST="${{ secrets.DATABASE_HOST }}" \
+              -e DATABASE_PORT="${{ secrets.DATABASE_PORT }}" \
+              -e DATABASE_USER="${{ secrets.DATABASE_USER }}" \
+              -e DATABASE_PASSWORD="${{ secrets.DATABASE_PASSWORD }}" \
+              -e DATABASE_NAME="${{ secrets.DATABASE_NAME }}" \
+              -e JWT_SECRET="${{ secrets.JWT_SECRET }}" \
+              -e MAIL_HOST="${{ secrets.MAIL_HOST }}" \
+              -e MAIL_PORT="${{ secrets.MAIL_PORT }}" \
+              -e MAIL_USER="${{ secrets.MAIL_USER }}" \
+              -e MAIL_PASS="${{ secrets.MAIL_PASS }}" \
+              "$ECR_IMAGE"
             
             echo "=== 컨테이너 상태 확인 ==="
             # 9. 컨테이너 실행 확인 (30초 대기)
@@ -194,10 +204,10 @@ jobs:
             
             echo "=== 이전 이미지 정리 ==="
             # 10. 이전 이미지 정리 (최근 3개 제외)
-            sudo docker images ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }} --format "table {{.Repository}}:{{.Tag}}\t{{.CreatedAt}}" | tail -n +4 | awk '{print $1}' | xargs -r sudo docker rmi || true
+            sudo docker images $ECR_REGISTRY/$ECR_REPOSITORY --format "table {{.Repository}}:{{.Tag}}\t{{.CreatedAt}}" | tail -n +4 | awk '{print $1}' | xargs -r sudo docker rmi || true
             
             echo "=== 배포 완료 ==="
-          EOF
+          'EOF'
           
           rm -f private_key.pem
 
