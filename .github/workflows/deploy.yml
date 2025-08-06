@@ -207,7 +207,7 @@ jobs:
             sudo docker images $ECR_REGISTRY/$ECR_REPOSITORY --format "table {{.Repository}}:{{.Tag}}\t{{.CreatedAt}}" | tail -n +4 | awk '{print $1}' | xargs -r sudo docker rmi || true
             
             echo "=== 배포 완료 ==="
-          'EOF'
+          EOF
           
           rm -f private_key.pem
 
