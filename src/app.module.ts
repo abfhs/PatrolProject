@@ -29,11 +29,11 @@ import { AdminUserSeed } from './database/seeds/admin-user.seed';
     TypeOrmModule.forRoot({
       //데이터베이스 타입
       type: 'postgres',
-      host: '127.0.0.1',
-      port: 5432,
-      username: 'postgres',
-      password: 'postgres',
-      database: 'postgres',
+      host: process.env.DATABASE_HOST || '127.0.0.1',
+      port: parseInt(process.env.DATABASE_PORT) || 5432,
+      username: process.env.DATABASE_USER || 'postgres',
+      password: process.env.DATABASE_PASSWORD || 'postgres',
+      database: process.env.DATABASE_NAME || 'postgres',
       entities: [
         // PostsModel,
         UsersModel,
@@ -41,7 +41,7 @@ import { AdminUserSeed } from './database/seeds/admin-user.seed';
         TaskLog,
         EmailVerification
       ],
-      synchronize: true, // 배포 시에는 자동 연동되지 않도록 false로 세팅
+      synchronize: process.env.NODE_ENV !== 'production', // 운영환경에서는 자동 동기화 비활성화
     }),
     TypeOrmModule.forFeature([UsersModel]), // AdminUserSeed에서 사용
     AuthModule,

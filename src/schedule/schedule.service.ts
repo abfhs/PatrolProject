@@ -240,11 +240,8 @@ export class ScheduleService {
         resultKeys: Object.keys(crawlResult || {}),
       });
 
-      // 3. 조회된 정보 처리 (향후 확장 가능)
-      // TODO: 여기에 추가 로직 구현
-      // - 이전 조회 결과와 비교
-      // - 변경사항 발견 시 이메일 알림
-      // - 결과 데이터베이스 저장 등
+      // 3. 이전 조회 결과와 비교 및 변경사항 감지
+      await this.processRegistrationChange(schedule, crawlResult);
 
       console.log('🎉 작업 완료');
       
@@ -252,6 +249,158 @@ export class ScheduleService {
       console.error('❌ 작업 실행 중 오류 발생:', error);
       throw error; // 상위에서 실패로 처리되도록 오류를 다시 던짐
     }
+  }
+
+  /**
+   * 등기정보 변경사항 처리 함수
+   */
+  private async processRegistrationChange(schedule: ScheduleModel, newCrawlResult: any): Promise<void> {
+    try {
+      console.log(`🔍 등기정보 변경사항 검사 시작: ${schedule.email} - ${schedule.address}`);
+
+      // DB에 저장된 이전 크롤링 결과 가져오기
+      const previousCrawlResult = schedule.crawlResult;
+
+      if (!previousCrawlResult) {
+        // 최초 실행인 경우 - DB에 결과 저장하고 성공 처리
+        console.log('📝 최초 크롤링 결과 저장 중...');
+        await this.updateScheduleCrawlResult(schedule.id, newCrawlResult);
+        console.log('✅ 최초 크롤링 결과 저장 완료');
+        return;
+      }
+
+      // 이전 결과와 새 결과 비교
+      const isDataSame = this.compareRegistrationData(previousCrawlResult, newCrawlResult);
+
+      if (isDataSame) {
+        // 변경사항 없음 - 성공 처리
+        console.log('✅ 등기정보 변경사항 없음 - 정상 처리');
+        // DB의 최신 조회 시간 업데이트를 위해 결과 저장
+        await this.updateScheduleCrawlResult(schedule.id, newCrawlResult);
+      } else {
+        // 변경사항 발견 - 알림 이메일 발송 및 실패 처리
+        console.log('🚨 등기정보 변경사항 감지!');
+        console.log('이전 데이터:', JSON.stringify(this.removeVolatileFields(previousCrawlResult), null, 2));
+        console.log('새로운 데이터:', JSON.stringify(this.removeVolatileFields(newCrawlResult), null, 2));
+
+        // 변경된 결과를 DB에 저장
+        await this.updateScheduleCrawlResult(schedule.id, newCrawlResult);
+
+        // 이메일 알림 발송
+        await this.sendRegistrationChangeNotification(schedule, newCrawlResult);
+
+        // 변경사항 발견으로 실패 처리 (로그에서 확인 가능)
+        throw new Error(`등기정보 변경사항 감지: ${schedule.address}`);
+      }
+
+    } catch (error) {
+      console.error('❌ 등기정보 변경사항 처리 중 오류:', error);
+      throw error;
+    }
+  }
+
+  // 스케줄의 크롤링 결과 업데이트
+  private async updateScheduleCrawlResult(scheduleId: number, crawlResult: any): Promise<void> {
+    const schedule = await this.scheduleRepository.findOne({ where: { id: scheduleId } });
+    if (schedule) {
+      schedule.crawlResult = crawlResult;
+      await this.scheduleRepository.save(schedule);
+    }
+  }
+
+  // 등기정보 변경 알림 이메일 발송
+  private async sendRegistrationChangeNotification(schedule: ScheduleModel, changedData: any): Promise<void> {
+    try {
+      const scheduleData = {
+        address: schedule.address,
+        addressPin: schedule.addressPin,
+        ownerName: schedule.ownerName,
+      };
+
+      const emailSent = await this.emailService.sendRegistrationChangeAlert(
+        schedule.email,
+        scheduleData,
+        changedData
+      );
+
+      if (emailSent) {
+        console.log(`✅ 등기정보 변경 알림 이메일 발송 성공: ${schedule.email}`);
+      } else {
+        console.error(`❌ 등기정보 변경 알림 이메일 발송 실패: ${schedule.email}`);
+      }
+    } catch (error) {
+      console.error('등기정보 변경 알림 이메일 발송 중 오류:', error);
+      // 이메일 발송 실패해도 메인 프로세스는 계속 진행
+    }
+  }
+
+  /**
+   * 등기정보 비교 유틸리티 함수들
+   */
+  
+  // id와 timestamp를 제외하고 객체 비교
+  private compareRegistrationData(dbData: any, newData: any): boolean {
+    if (!dbData || !newData) {
+      return false;
+    }
+
+    // id와 timestamp를 제외한 복사본 생성
+    const cleanDbData = this.removeVolatileFields(dbData);
+    const cleanNewData = this.removeVolatileFields(newData);
+
+    // 깊은 비교 수행
+    return this.deepEqual(cleanDbData, cleanNewData);
+  }
+
+  // 가변 필드 제거 (id, timestamp)
+  private removeVolatileFields(data: any): any {
+    if (!data || typeof data !== 'object') {
+      return data;
+    }
+
+    const cleaned = { ...data };
+    delete cleaned.id;
+    delete cleaned.timestamp;
+    
+    return cleaned;
+  }
+
+  // 깊은 객체 비교 함수
+  private deepEqual(obj1: any, obj2: any): boolean {
+    if (obj1 === obj2) {
+      return true;
+    }
+
+    if (obj1 == null || obj2 == null) {
+      return obj1 === obj2;
+    }
+
+    if (typeof obj1 !== typeof obj2) {
+      return false;
+    }
+
+    if (typeof obj1 !== 'object') {
+      return obj1 === obj2;
+    }
+
+    const keys1 = Object.keys(obj1);
+    const keys2 = Object.keys(obj2);
+
+    if (keys1.length !== keys2.length) {
+      return false;
+    }
+
+    for (const key of keys1) {
+      if (!keys2.includes(key)) {
+        return false;
+      }
+
+      if (!this.deepEqual(obj1[key], obj2[key])) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
   /**

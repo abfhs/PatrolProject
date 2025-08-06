@@ -1,20 +1,60 @@
-FROM node:18 AS builder
+# Multi-stage build for production
+FROM node:20-alpine AS frontend-builder
 
-WORKDIR /usr/src/app
+WORKDIR /app/frontend
 
-COPY package.json yarn.lock ./
+# Copy frontend package files
+COPY frontend/package*.json ./
+RUN npm ci --only=production
 
-RUN yarn install --frozen-lockfile
+# Copy frontend source and build
+COPY frontend/ ./
+RUN npm run build
 
+# Backend builder stage
+FROM node:20-alpine AS backend-builder
+
+WORKDIR /app
+
+# Copy backend package files
+COPY package*.json ./
+RUN npm ci --only=production
+
+# Copy backend source
 COPY . .
+COPY --from=frontend-builder /app/frontend/dist ./public
 
-RUN yarn build
+# Build backend
+RUN npm run build
 
-FROM node:18-alpine
+# Production stage
+FROM node:20-alpine
 
-WORKDIR /usr/src/app
+WORKDIR /app
 
-COPY --from=builder /usr/src/app/dist ./dist
-COPY --from=builder /usr/src/app/node_modules ./node_modules
+# Install dumb-init for proper signal handling
+RUN apk add --no-cache dumb-init
 
-CMD ["node", "dist/main"]
+# Create non-root user
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nestjs -u 1001
+
+# Copy built application
+COPY --from=backend-builder --chown=nestjs:nodejs /app/dist ./dist
+COPY --from=backend-builder --chown=nestjs:nodejs /app/node_modules ./node_modules
+COPY --from=backend-builder --chown=nestjs:nodejs /app/public ./public
+COPY --from=backend-builder --chown=nestjs:nodejs /app/package*.json ./
+
+# Switch to non-root user
+USER nestjs
+
+# Expose port
+EXPOSE 3000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:3000', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"
+
+# Start application with proper signal handling
+ENTRYPOINT ["dumb-init", "--"]
+CMD ["node", "dist/main.js"]

@@ -14,7 +14,7 @@ export class CrawlService {
     /**
      * 로그인 계정 선택
      */
-    var id = 'abfhs64';
+    var id = process.env.SITE_ID;
 
 
     this.hostUrl = 'https://www.iros.go.kr';
@@ -37,7 +37,7 @@ export class CrawlService {
 
     var bodyJson : any;
 
-    bodyJson = {"websquare_param":{"user_id": id,"mbr_pw":"joonzero1!","general_login_yn":"Y","user_id_g": id,"mbr_pw_g":"joonzero1!"}}
+    bodyJson = {"websquare_param":{"user_id": id,"mbr_pw": process.env.SITE_PASSWORD,"general_login_yn":"Y","user_id_g": id,"mbr_pw_g": process.env.SITE_PASSWORD}}
     var url =  this.hostUrl + "/biz/Pm10P0LoginMngCtrl/handleMbrLogin.do?IS_NMBR_LOGIN__=null?IS_NMBR_LOGIN__=null?IS_NMBR_LOGIN__=null";
     var resultData = await this.fetchData('post', url, headers, bodyJson);
 
@@ -258,7 +258,7 @@ export class CrawlService {
    */
   async getLogin(){
 
-    var id = 'abfhs64';
+    var id = process.env.SITE_ID;
 
 
     this.hostUrl = 'https://www.iros.go.kr';
@@ -281,7 +281,7 @@ export class CrawlService {
 
     var bodyJson : any;
 
-    bodyJson = {"websquare_param":{"user_id": id,"mbr_pw":"joonzero1!","general_login_yn":"Y","user_id_g": id,"mbr_pw_g":"joonzero1!"}}
+    bodyJson = {"websquare_param":{"user_id": id,"mbr_pw": process.env.SITE_PASSWORD,"general_login_yn":"Y","user_id_g": id,"mbr_pw_g": process.env.SITE_PASSWORD}}
     var url =  this.hostUrl + "/biz/Pm10P0LoginMngCtrl/handleMbrLogin.do?IS_NMBR_LOGIN__=null?IS_NMBR_LOGIN__=null?IS_NMBR_LOGIN__=null";
     var resultData = await this.fetchData('post', url, headers, bodyJson);
 

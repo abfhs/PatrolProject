@@ -34,16 +34,48 @@ NestJS와 React를 기반으로 한 부동산 모니터링 시스템입니다.
 # 프록시 설정
 PROXY_URL=your_proxy_url_here
 
+# 사이트 인증 정보
+SITE_ID=your_site_id
+SITE_PASSWORD=your_site_password
+
+# JWT 보안 키 (32자 이상 랜덤 문자열)
+JWT_SECRET=your-32-character-long-secret-key-here
+
+# 데이터베이스 설정 (선택사항 - 기본값: PostgreSQL)
+DATABASE_HOST=localhost
+DATABASE_PORT=5432
+DATABASE_USER=postgres
+DATABASE_PASSWORD=your_db_password
+DATABASE_NAME=patrol
+
 # 관리자 계정 설정 (보안상 중요!)
 ADMIN_EMAIL=admin@example.com
 ADMIN_PASSWORD=your_secure_password
 ADMIN_NICKNAME=admin
+
+# 이메일 설정 (Gmail 사용)
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USER=your-gmail@gmail.com
+MAIL_PASS=your-gmail-app-password
+MAIL_FROM=your-gmail@gmail.com
 ```
 
 > ⚠️ **보안 주의사항**: 
-> - 실제 운영 환경에서는 강력한 패스워드를 사용하세요
+> - **JWT_SECRET**: 32자 이상의 강력한 랜덤 문자열을 사용하세요
+> - **패스워드**: 실제 운영 환경에서는 강력한 패스워드를 사용하세요
+> - **Gmail 앱 패스워드**: 일반 패스워드가 아닌 앱 전용 패스워드를 사용하세요
 > - `.env` 파일은 Git에 업로드되지 않으므로 안전합니다
 > - `.env.example` 파일을 참고하여 필요한 환경변수를 설정하세요
+
+#### JWT_SECRET 생성 방법:
+```bash
+# 온라인 생성기 사용 (권장)
+# https://www.random.org/passwords/
+
+# 또는 Node.js로 생성
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+```
 
 ### 2. 의존성 설치
 

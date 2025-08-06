@@ -69,6 +69,32 @@ export class EmailService {
     }
   }
 
+  async sendRegistrationChangeAlert(
+    to: string,
+    scheduleData: {
+      address: string;
+      addressPin: string;
+      ownerName: string;
+    },
+    changedRegistrationData: any
+  ): Promise<boolean> {
+    try {
+      const mailOptions = {
+        from: `"Patrol Service" <${this.configService.get<string>('MAIL_FROM')}>`,
+        to,
+        subject: '[Patrol] 🚨 등기정보가 변경되었습니다!',
+        html: this.getRegistrationChangeAlertEmailTemplate(scheduleData, changedRegistrationData),
+      };
+
+      const result = await this.transporter.sendMail(mailOptions);
+      console.log('등기정보 변경 알림 이메일 발송 성공:', { to, messageId: result.messageId });
+      return true;
+    } catch (error) {
+      console.error('등기정보 변경 알림 이메일 발송 실패:', error);
+      return false;
+    }
+  }
+
   private getBaseUrl(): string {
     // 이메일 인증 링크는 백엔드 API로 가야 함
     return process.env.NODE_ENV === 'production' 
@@ -243,6 +269,145 @@ export class EmailService {
             
             <p><strong>감사합니다!</strong></p>
             <p>Patrol Service를 이용해 주셔서 감사합니다.</p>
+          </div>
+          <div class="footer">
+            <p>본 메일은 시스템에서 자동으로 발송된 메일입니다.</p>
+            <p>© 2024 Patrol Service. All rights reserved.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+  }
+
+  private getRegistrationChangeAlertEmailTemplate(
+    scheduleData: {
+      address: string;
+      addressPin: string;
+      ownerName: string;
+    },
+    changedRegistrationData: any
+  ): string {
+    // 등기정보에서 중요한 데이터만 추출
+    const importantData = [
+      { label: '부동산 소재지번', value: changedRegistrationData.a105real_indi_cont },
+      { label: '주소번호', value: changedRegistrationData.a105_pin },
+      { label: '등기목적', value: changedRegistrationData.e033rgs_sel_name },
+      { label: '접수일자', value: this.formatDate(changedRegistrationData.a101recev_date) },
+      { label: '접수번호', value: changedRegistrationData.a101recev_no },
+      { label: '처리상태', value: changedRegistrationData.e008cd_name },
+      { label: '담당계', value: changedRegistrationData.a101rel_charge_cd },
+      { label: '등기소', value: changedRegistrationData.regt_name },
+      { label: '법원명', value: changedRegistrationData.court_name },
+      { label: '신청년도', value: changedRegistrationData.a101appl_year },
+      { label: '접수순번', value: changedRegistrationData.a101recev_seq },
+    ].filter(item => item.value && item.value !== '');
+
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <title>등기정보 변경 알림</title>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: #dc3545; color: white; padding: 20px; text-align: center; border-radius: 10px 10px 0 0; }
+          .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
+          .alert-icon { font-size: 3rem; margin-bottom: 1rem; }
+          .schedule-info { 
+            background: white; 
+            border: 2px solid #dc3545; 
+            border-radius: 8px; 
+            padding: 20px; 
+            margin: 20px 0; 
+          }
+          .info-row { 
+            display: flex; 
+            justify-content: space-between; 
+            padding: 8px 0; 
+            border-bottom: 1px solid #eee; 
+          }
+          .info-row:last-child { border-bottom: none; }
+          .info-label { font-weight: bold; color: #dc3545; }
+          .info-value { color: #666; }
+          .alert-box {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+            color: #721c24;
+          }
+          .action-box {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+            color: #856404;
+          }
+          .footer { text-align: center; margin-top: 20px; color: #666; font-size: 12px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <div class="alert-icon">🚨</div>
+            <h1>🏠 Patrol Service</h1>
+            <p>등기정보 변경 감지 알림</p>
+          </div>
+          <div class="content">
+            <h2>등기정보가 변경되었습니다!</h2>
+            <p>안녕하세요!</p>
+            <p><strong>모니터링 중인 부동산의 등기정보에 변경사항이 감지되었습니다.</strong></p>
+            
+            <div class="alert-box">
+              <h4 style="margin-top: 0;">⚠️ 중요 알림</h4>
+              <p style="margin-bottom: 0;">
+                <strong>등기정보가 변경되었습니다!</strong><br>
+                인터넷등기소에서 부동산 등기부등본을 확인해보세요!
+              </p>
+            </div>
+
+            <div class="schedule-info">
+              <h3 style="color: #dc3545; margin-top: 0;">📋 모니터링 대상 정보</h3>
+              <div class="info-row">
+                <span class="info-label">모니터링 주소:</span>
+                <span class="info-value">${scheduleData.address}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">주소번호:</span>
+                <span class="info-value">${scheduleData.addressPin}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">소유자명:</span>
+                <span class="info-value">${scheduleData.ownerName}</span>
+              </div>
+            </div>
+
+            <div class="schedule-info">
+              <h3 style="color: #dc3545; margin-top: 0;">📊 변경된 등기정보</h3>
+              ${importantData.map(item => `
+                <div class="info-row">
+                  <span class="info-label">${item.label}:</span>
+                  <span class="info-value">${item.value}</span>
+                </div>
+              `).join('')}
+            </div>
+
+            <div class="action-box">
+              <h4 style="margin-top: 0; color: #856404;">📝 권장 조치사항</h4>
+              <ul style="margin-bottom: 0;">
+                <li><strong>인터넷등기소</strong>에서 최신 등기부등본을 확인하세요.</li>
+                <li>변경 내용이 예상된 것인지 확인하세요.</li>
+                <li>의심스러운 변경사항이 있다면 관련 전문가와 상담하세요.</li>
+                <li>필요시 법무사나 변호사에게 문의하시기 바랍니다.</li>
+              </ul>
+            </div>
+            
+            <p><strong>감사합니다!</strong></p>
+            <p>Patrol Service가 여러분의 부동산을 지켜드리겠습니다.</p>
           </div>
           <div class="footer">
             <p>본 메일은 시스템에서 자동으로 발송된 메일입니다.</p>

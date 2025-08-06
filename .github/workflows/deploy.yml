@@ -1,25 +1,55 @@
-name: Deploy to AWS App Runner
+name: Deploy to AWS
 
 on:
   push:
-    branches:
-      - master
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+    types: [closed]
 
 env:
   AWS_REGION: ap-northeast-2
-  ECR_REPOSITORY: patrol
-  APP_RUNNER_SERVICE_NAME: patrol-service
+  ECR_REPOSITORY: patrol-app
 
 jobs:
-  deploy:
-    name: Deploy
+  test:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install backend dependencies
+        run: npm ci
+
+      - name: Install frontend dependencies
+        run: cd frontend && npm ci
+
+      - name: Run backend tests
+        run: npm run test
+
+      - name: Run frontend linting
+        run: cd frontend && npm run lint
+
+  build-and-deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -38,40 +68,64 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
+          # Docker 이미지 빌드 및 푸시
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          echo "IMAGE_URI=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_ENV
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
-      - name: Check for existing App Runner service
-        id: check-service
+      - name: Deploy to EC2
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
         run: |
-          SERVICE_ARN=$(aws apprunner list-services --query "ServiceSummaryList[?ServiceName=='${{ env.APP_RUNNER_SERVICE_NAME }}'].ServiceArn" --output text)
-          if [ -z "$SERVICE_ARN" ]; then
-            echo "Service does not exist. It will be created."
-            echo "exists=false" >> $GITHUB_OUTPUT
-          else
-            echo "Service exists. ARN: $SERVICE_ARN"
-            echo "exists=true" >> $GITHUB_OUTPUT
-            echo "arn=$SERVICE_ARN" >> $GITHUB_OUTPUT
-          fi
+          # EC2에 SSH 접속하여 배포
+          echo "${{ secrets.EC2_PRIVATE_KEY }}" > private_key.pem
+          chmod 600 private_key.pem
+          
+          ssh -o StrictHostKeyChecking=no -i private_key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} << 'EOF'
+            # AWS CLI 및 Docker 로그인
+            aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ steps.login-ecr.outputs.registry }}
+            
+            # 기존 컨테이너 중지 및 제거
+            docker stop patrol-app || true
+            docker rm patrol-app || true
+            
+            # 새 이미지 풀 및 실행
+            docker pull ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
+            
+            docker run -d \
+              --name patrol-app \
+              --restart unless-stopped \
+              -p 80:3000 \
+              -e NODE_ENV=production \
+              -e DATABASE_HOST=${{ secrets.DATABASE_HOST }} \
+              -e DATABASE_PORT=${{ secrets.DATABASE_PORT }} \
+              -e DATABASE_USER=${{ secrets.DATABASE_USER }} \
+              -e DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }} \
+              -e DATABASE_NAME=${{ secrets.DATABASE_NAME }} \
+              -e JWT_SECRET=${{ secrets.JWT_SECRET }} \
+              -e MAIL_HOST=${{ secrets.MAIL_HOST }} \
+              -e MAIL_PORT=${{ secrets.MAIL_PORT }} \
+              -e MAIL_USER=${{ secrets.MAIL_USER }} \
+              -e MAIL_PASS=${{ secrets.MAIL_PASS }} \
+              ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
+            
+            # 이전 이미지 정리 (최근 3개 제외)
+            docker images ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }} --format "table {{.Repository}}:{{.Tag}}\t{{.CreatedAt}}" | tail -n +4 | awk '{print $1}' | xargs -r docker rmi || true
+          EOF
+          
+          rm -f private_key.pem
 
-      - name: Create App Runner Service
-        if: steps.check-service.outputs.exists == 'false'
+      - name: Verify deployment
         run: |
-          aws apprunner create-service --service-name ${{ env.APP_RUNNER_SERVICE_NAME }} \
-          --source-configuration '{
-            "ImageRepository": {
-              "ImageIdentifier": "${{ env.IMAGE_URI }}",
-              "ImageRepositoryType": "ECR",
-              "ImageConfiguration": { "Port": "3000" }
-            }
-          }' \
-          --instance-configuration '{
-            "Cpu": "1 vCPU", 
-            "Memory": "2 GB"
-          }' 
-
-      - name: Deploy to existing App Runner Service
-        if: steps.check-service.outputs.exists == 'true'
-        run: |
-          aws apprunner start-deployment --service-arn ${{ steps.check-service.outputs.arn }}
+          # 배포 확인
+          echo "${{ secrets.EC2_PRIVATE_KEY }}" > private_key.pem
+          chmod 600 private_key.pem
+          
+          ssh -o StrictHostKeyChecking=no -i private_key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} << 'EOF'
+            docker ps | grep patrol-app
+            sleep 30
+            curl -f http://localhost:80 || exit 1
+          EOF
+          
+          rm -f private_key.pem
