@@ -25,7 +25,7 @@ jobs:
           cache: 'npm'
 
       - name: Install backend dependencies
-        run: npm ci
+        run: npm ci --legacy-peer-deps
 
       - name: Install frontend dependencies
         run: cd frontend && npm ci
