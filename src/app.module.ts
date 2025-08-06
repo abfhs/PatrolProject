@@ -41,7 +41,7 @@ import { AdminUserSeed } from './database/seeds/admin-user.seed';
         TaskLog,
         EmailVerification
       ],
-      synchronize: process.env.NODE_ENV !== 'production', // 운영환경에서는 자동 동기화 비활성화
+      synchronize: true, // 임시로 테이블 생성을 위해 활성화
       ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false, // RDS SSL 연결
     }),
     TypeOrmModule.forFeature([UsersModel]), // AdminUserSeed에서 사용
