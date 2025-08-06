@@ -183,6 +183,10 @@ jobs:
               -e MAIL_PORT="${{ secrets.MAIL_PORT }}" \
               -e MAIL_USER="${{ secrets.MAIL_USER }}" \
               -e MAIL_PASS="${{ secrets.MAIL_PASS }}" \
+              -e MAIL_FROM="${{ secrets.MAIL_FROM }}" \
+              -e PROXY_URL="${{ secrets.PROXY_URL }}" \
+              -e SITE_ID="${{ secrets.SITE_ID }}" \
+              -e SITE_PASSWORD="${{ secrets.SITE_PASSWORD }}" \
               -e BASE_URL="http://${{ secrets.EC2_HOST }}" \
               -e FRONTEND_URL="http://${{ secrets.EC2_HOST }}" \
               "$ECR_IMAGE"

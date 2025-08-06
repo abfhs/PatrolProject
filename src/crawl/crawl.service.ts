@@ -426,8 +426,12 @@ export class CrawlService {
       }
       // const userAgent = fakeUa();
       const proxyUrl = process.env.PROXY_URL;
-      const httpsAgent = new HttpsProxyAgent(proxyUrl);
-      const httpAgent = new HttpProxyAgent(proxyUrl);
+      let httpsAgent, httpAgent;
+      
+      if (proxyUrl && proxyUrl.trim() !== '') {
+        httpsAgent = new HttpsProxyAgent(proxyUrl);
+        httpAgent = new HttpProxyAgent(proxyUrl);
+      }
       
       // SSL 인증서 검증 비활성화를 위한 설정
       process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0";
@@ -441,10 +445,16 @@ export class CrawlService {
         validateStatus: function (status) {
           return status >= 200 && status < 400; // Accept status codes in the 2xx and 3xx ranges
         },
-        httpsAgent,
-        httpAgent,
         proxy: false // Disable axios built-in proxy to use agents instead
       };
+
+      // 프록시 에이전트가 있을 때만 설정
+      if (httpsAgent) {
+        requestConfig.httpsAgent = httpsAgent;
+      }
+      if (httpAgent) {
+        requestConfig.httpAgent = httpAgent;
+      }
 
       if (this.cookieString) {
         requestConfig.headers['Cookie'] = this.cookieString;

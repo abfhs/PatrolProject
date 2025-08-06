@@ -151,6 +151,66 @@ patrol/
 └── public/               # 정적 파일
 ```
 
+## 🚀 AWS 배포
+
+### GitHub Actions를 통한 자동 배포
+
+본 프로젝트는 GitHub Actions를 통해 AWS EC2로 자동 배포됩니다.
+
+#### 1. AWS 리소스 준비
+
+- **EC2 인스턴스**: Amazon Linux 2023 AMI
+- **ECR 리포지토리**: Docker 이미지 저장소
+- **RDS 인스턴스**: PostgreSQL 데이터베이스
+- **보안 그룹**: HTTP(80), SSH(22), PostgreSQL(5432) 포트 허용
+
+#### 2. GitHub Repository Secrets 설정
+
+다음 환경변수들을 GitHub Repository Settings > Secrets and variables > Actions에 추가하세요:
+
+##### AWS 관련
+- `AWS_ACCESS_KEY_ID`: AWS 액세스 키
+- `AWS_SECRET_ACCESS_KEY`: AWS 시크릿 키
+- `EC2_PRIVATE_KEY`: EC2 SSH 접속용 프라이빗 키 (.pem 파일 내용)
+- `EC2_HOST`: EC2 인스턴스 퍼블릭 IP (예: `54.180.132.32`)
+- `EC2_USERNAME`: EC2 사용자명 (일반적으로 `ec2-user`)
+
+##### 데이터베이스
+- `DATABASE_HOST`: RDS 엔드포인트
+- `DATABASE_PORT`: 포트번호 (기본: `5432`)
+- `DATABASE_USER`: DB 사용자명
+- `DATABASE_PASSWORD`: DB 패스워드
+- `DATABASE_NAME`: 데이터베이스명
+
+##### 애플리케이션
+- `JWT_SECRET`: JWT 암호화 키 (32자 이상)
+- `ADMIN_EMAIL`: 관리자 이메일
+- `ADMIN_PASSWORD`: 관리자 패스워드
+- `ADMIN_NICKNAME`: 관리자 닉네임
+
+##### 외부 서비스
+- `SITE_ID`: 인터넷등기소 ID
+- `SITE_PASSWORD`: 인터넷등기소 패스워드
+- `PROXY_URL`: 프록시 서버 URL (선택사항)
+- `MAIL_HOST`: 이메일 호스트 (예: `smtp.gmail.com`)
+- `MAIL_PORT`: 이메일 포트 (예: `587`)
+- `MAIL_USER`: Gmail 주소
+- `MAIL_PASS`: Gmail 앱 패스워드
+- `MAIL_FROM`: 발신자 이메일 (보통 MAIL_USER와 동일)
+
+#### 3. 배포 프로세스
+
+1. `main` 또는 `master` 브랜치에 push하면 자동 배포 시작
+2. 테스트 및 린팅 실행
+3. Docker 이미지 빌드 후 ECR에 푸시
+4. EC2 인스턴스에서 새 이미지로 컨테이너 교체
+5. 배포 검증 및 헬스 체크
+
+#### 4. 배포 후 접속
+
+- **웹사이트**: `http://YOUR_EC2_IP`
+- **관리자 페이지**: `http://YOUR_EC2_IP/admin`
+
 ## 🔒 보안 고려사항
 
 1. **환경변수**: 모든 민감한 정보는 환경변수로 관리
@@ -158,6 +218,8 @@ patrol/
 3. **비밀번호 암호화**: bcrypt로 해시화
 4. **역할 기반 접근**: ADMIN/USER 역할 구분
 5. **CORS 설정**: 필요한 도메인만 허용
+6. **SSL/TLS**: 프로덕션에서는 HTTPS 사용 권장
+7. **프록시 설정**: 필요시 프록시 서버를 통한 외부 접속
 
 ## 📄 라이선스
 
