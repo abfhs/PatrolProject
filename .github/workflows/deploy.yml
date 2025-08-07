@@ -175,6 +175,7 @@ jobs:
               -e DATABASE_USER="${{ secrets.DATABASE_USER }}" \
               -e DATABASE_PASSWORD="${{ secrets.DATABASE_PASSWORD }}" \
               -e DATABASE_NAME="${{ secrets.DATABASE_NAME }}" \
+              -e DATABASE_SSL="true" \
               -e JWT_SECRET="${{ secrets.JWT_SECRET }}" \
               -e ADMIN_EMAIL="${{ secrets.ADMIN_EMAIL }}" \
               -e ADMIN_PASSWORD="${{ secrets.ADMIN_PASSWORD }}" \

@@ -61,6 +61,162 @@
       ],
       "localRoot": "${workspaceFolder}",
       "remoteRoot": "${workspaceFolder}"
+    },
+    {
+      "name": "🏭 Production Mode (Local Test)",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "test:prod"
+      ],
+      "console": "integratedTerminal",
+      "restart": false,
+      "env": {
+        "NODE_ENV": "production",
+        "DATABASE_HOST": "localhost",
+        "DATABASE_PORT": "5432",
+        "DATABASE_USER": "postgres",
+        "DATABASE_PASSWORD": "postgres",
+        "DATABASE_NAME": "postgres",
+        "DATABASE_SSL": "false",
+        "JWT_SECRET": "local-production-test-secret-32-chars",
+        "ADMIN_EMAIL": "admin@test.com",
+        "ADMIN_PASSWORD": "testpassword",
+        "ADMIN_NICKNAME": "TestAdmin",
+        "BASE_URL": "http://localhost:3000",
+        "FRONTEND_URL": "http://localhost:3000",
+        "MAIL_HOST": "smtp.gmail.com",
+        "MAIL_PORT": "587",
+        "MAIL_USER": "test@gmail.com",
+        "MAIL_PASS": "testpass",
+        "MAIL_FROM": "test@gmail.com"
+      }
+    },
+    {
+      "name": "🏭 Production Mode (Debug)",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/dist/main.js",
+      "console": "integratedTerminal",
+      "restart": false,
+      "env": {
+        "NODE_ENV": "production",
+        "DATABASE_HOST": "localhost",
+        "DATABASE_PORT": "5432",
+        "DATABASE_USER": "postgres",
+        "DATABASE_PASSWORD": "postgres", 
+        "DATABASE_NAME": "postgres",
+        "DATABASE_SSL": "false",
+        "JWT_SECRET": "local-production-test-secret-32-chars",
+        "ADMIN_EMAIL": "admin@test.com",
+        "ADMIN_PASSWORD": "testpassword",
+        "ADMIN_NICKNAME": "TestAdmin",
+        "BASE_URL": "http://localhost:3000",
+        "FRONTEND_URL": "http://localhost:3000",
+        "MAIL_HOST": "smtp.gmail.com",
+        "MAIL_PORT": "587",
+        "MAIL_USER": "test@gmail.com",
+        "MAIL_PASS": "testpass",
+        "MAIL_FROM": "test@gmail.com"
+      },
+    },
+    {
+      "name": "🔨 Build Only",
+      "type": "node", 
+      "request": "launch",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "build"
+      ],
+      "console": "integratedTerminal",
+      "restart": false
+    },
+    {
+      "name": "🏭 Production Build + Run",
+      "type": "node",
+      "request": "launch", 
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "test:prod"
+      ],
+      "console": "integratedTerminal",
+      "restart": false,
+      "env": {
+        "NODE_ENV": "production",
+        "DATABASE_HOST": "localhost",
+        "DATABASE_PORT": "5432",
+        "DATABASE_USER": "postgres",
+        "DATABASE_PASSWORD": "postgres",
+        "DATABASE_NAME": "postgres",
+        "DATABASE_SSL": "false",
+        "JWT_SECRET": "local-production-test-secret-32-chars",
+        "ADMIN_EMAIL": "admin@test.com", 
+        "ADMIN_PASSWORD": "testpassword",
+        "ADMIN_NICKNAME": "TestAdmin",
+        "BASE_URL": "http://localhost:3000",
+        "FRONTEND_URL": "http://localhost:3000"
+      }
+    },
+    {
+      "name": "🌐 Production Mode (Port 3001)",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/dist/main.js",
+      "console": "integratedTerminal",
+      "restart": false,
+      "env": {
+        "NODE_ENV": "production",
+        "PORT": "3001",
+        "DATABASE_HOST": "localhost",
+        "DATABASE_PORT": "5432",
+        "DATABASE_USER": "postgres",
+        "DATABASE_PASSWORD": "postgres",
+        "DATABASE_NAME": "postgres",
+        "DATABASE_SSL": "false",
+        "JWT_SECRET": "local-production-test-secret-32-chars",
+        "ADMIN_EMAIL": "admin@test.com",
+        "ADMIN_PASSWORD": "testpassword",
+        "ADMIN_NICKNAME": "TestAdmin",
+        "BASE_URL": "http://localhost:3001",
+        "FRONTEND_URL": "http://localhost:3001",
+        "MAIL_HOST": "smtp.gmail.com",
+        "MAIL_PORT": "587",
+        "MAIL_USER": "test@gmail.com",
+        "MAIL_PASS": "testpass",
+        "MAIL_FROM": "test@gmail.com"
+      },
+    },
+    {
+      "name": "🌐 Production Chrome (Port 3000)",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:3000",
+      "webRoot": "${workspaceFolder}/public",
+      "sourceMaps": false,
+      "userDataDir": "${workspaceFolder}/.vscode/chrome_production_debug",
+      "runtimeArgs": [
+        "--disable-web-security",
+        "--disable-features=VizDisplayCompositor",
+        "--disable-extensions"
+      ]
+    },
+    {
+      "name": "🌐 Production Chrome (Port 3001)",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:3001",
+      "webRoot": "${workspaceFolder}/public",
+      "sourceMaps": false,
+      "userDataDir": "${workspaceFolder}/.vscode/chrome_production_debug_3001",
+      "runtimeArgs": [
+        "--disable-web-security",
+        "--disable-features=VizDisplayCompositor",
+        "--disable-extensions"
+      ]
     }
   ],
   "compounds": [
@@ -89,6 +245,69 @@
         "hidden": false,
         "group": "fullstack",
         "order": 2
+      }
+    },
+    {
+      "name": "🏭 Test Production Environment",
+      "configurations": [
+        "🏭 Production Mode (Local Test)"
+      ],
+      "stopAll": true,
+      "presentation": {
+        "hidden": false,
+        "group": "production",
+        "order": 1
+      }
+    },
+    {
+      "name": "🚀 Production Test (Port 3001)",
+      "configurations": [
+        "🌐 Production Mode (Port 3001)"
+      ],
+      "stopAll": true,
+      "presentation": {
+        "hidden": false,
+        "group": "production",
+        "order": 2
+      }
+    },
+    {
+      "name": "🏭 Production Debug + Chrome (Port 3000)",
+      "configurations": [
+        "🏭 Production Mode (Debug)",
+        "🌐 Production Chrome (Port 3000)"
+      ],
+      "stopAll": true,
+      "presentation": {
+        "hidden": false,
+        "group": "production",
+        "order": 3
+      }
+    },
+    {
+      "name": "🏭 Production Test + Chrome (Port 3000)",
+      "configurations": [
+        "🏭 Production Mode (Local Test)",
+        "🌐 Production Chrome (Port 3000)"
+      ],
+      "stopAll": true,
+      "presentation": {
+        "hidden": false,
+        "group": "production",
+        "order": 4
+      }
+    },
+    {
+      "name": "🚀 Production Port 3001 + Chrome",
+      "configurations": [
+        "🌐 Production Mode (Port 3001)",
+        "🌐 Production Chrome (Port 3001)"
+      ],
+      "stopAll": true,
+      "presentation": {
+        "hidden": false,
+        "group": "production",
+        "order": 5
       }
     }
   ]

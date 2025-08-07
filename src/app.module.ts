@@ -25,7 +25,7 @@ import { AdminUserSeed } from './database/seeds/admin-user.seed';
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'public'),
       serveRoot: '/',
-      exclude: ['/api*'], // API 경로는 제외  
+      exclude: ['/auth(.*)', '/users(.*)', '/crawl(.*)', '/schedule(.*)'], // API 경로는 제외 (정규표현식)
       serveStaticOptions: {
         index: false, // 디렉토리 인덱싱 비활성화
         fallthrough: true, // 파일을 찾을 수 없을 때 다음 미들웨어로 전달
@@ -48,7 +48,7 @@ import { AdminUserSeed } from './database/seeds/admin-user.seed';
       ],
       synchronize: true, // 임시로 테이블 생성을 위해 활성화
       logging: process.env.NODE_ENV === 'production' ? ['error', 'warn', 'schema'] : true, // 프로덕션에서 로깅 활성화
-      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false, // RDS SSL 연결
+      ssl: process.env.DATABASE_SSL === 'true' ? { rejectUnauthorized: false } : false, // SSL 연결 (환경변수로 제어)
     }),
     TypeOrmModule.forFeature([UsersModel]), // AdminUserSeed에서 사용
     AuthModule,

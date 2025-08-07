@@ -181,6 +181,7 @@ patrol/
 - `DATABASE_USER`: DB 사용자명
 - `DATABASE_PASSWORD`: DB 패스워드
 - `DATABASE_NAME`: 데이터베이스명
+- `DATABASE_SSL`: SSL 연결 사용 여부 (`true` for RDS, `false` for local)
 
 ##### 애플리케이션
 - `JWT_SECRET`: JWT 암호화 키 (32자 이상)
