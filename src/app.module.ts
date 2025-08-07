@@ -16,6 +16,7 @@ import { ScheduleModule } from './schedule/schedule.module';
 import { AdminModule } from './admin/admin.module';
 import { ConfigModule } from '@nestjs/config';
 import { AdminUserSeed } from './database/seeds/admin-user.seed';
+import { SpaModule } from './spa/spa.module';
 
 @Module({
   imports: [
@@ -51,14 +52,15 @@ import { AdminUserSeed } from './database/seeds/admin-user.seed';
       ssl: process.env.DATABASE_SSL === 'true' ? { rejectUnauthorized: false } : false, // SSL 연결 (환경변수로 제어)
     }),
     TypeOrmModule.forFeature([UsersModel]), // AdminUserSeed에서 사용
+    AdminModule, // API 컨트롤러들을 먼저 등록
     AuthModule,
     UsersModule,
     CommonModule,
     CrawlModule,
     ScheduleModule,
-    AdminModule
+    SpaModule, // SPA 라우팅은 가장 마지막에 등록
   ],
-  controllers: [AppController],
-  providers: [AppService, AdminUserSeed],
+  controllers: [], // 컨트롤러들은 각 모듈로 이동
+  providers: [AdminUserSeed],
 })
 export class AppModule {}

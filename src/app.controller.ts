@@ -7,14 +7,6 @@ import { join } from 'path';
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  // Admin SPA routes - 가장 먼저 처리 (우선순위 최상)
-  @Get(['/admin', '/admin/login', '/admin/users', '/admin/schedules', '/admin/logs'])
-  serveAdminSPA(@Res() res: Response): void {
-    console.log('🎯 Admin SPA route accessed:', res.req.path);
-    const indexPath = join(__dirname, '..', 'public', 'index.html');
-    console.log('📁 Serving index.html from:', indexPath);
-    res.sendFile(indexPath);
-  }
 
   // User SPA routing: serve index.html for client-side routing
   @Get(['/', '/register', '/main', '/mypage', '/email-verification-success', '/email-verification-error'])
@@ -23,7 +15,7 @@ export class AppController {
     res.sendFile(join(__dirname, '..', 'public', 'index.html'));
   }
 
-  // Catch-all for any other routes - 가장 나중에 처리
+  // Catch-all for any other routes - 가장 나중에 처리  
   @Get('*')
   catchAll(@Res() res: Response, @Next() next: NextFunction): void {
     const path = res.req.path;
@@ -36,23 +28,21 @@ export class AppController {
       return;
     }
     
-    // API 경로들 - 이 경로들은 실제 컨트롤러가 처리해야 하므로 catch-all이 가로채면 안됨
+    // API 경로가 catch-all에 도달했다면 해당 API가 존재하지 않음을 의미
     const isApiPath = 
       path.startsWith('/auth/') ||
       path.startsWith('/users/') ||
       path.startsWith('/crawl/') || 
       path.startsWith('/schedule/') ||
-      path.startsWith('/admin/dashboard') ||
-      path.startsWith('/admin/users') ||
-      path.startsWith('/admin/schedules') ||
-      path.startsWith('/admin/scheduler') ||
+      path.startsWith('/admin/') ||
       path === '/auth' ||
       path === '/users' ||
       path === '/crawl' ||
-      path === '/schedule';
+      path === '/schedule' ||
+      path === '/admin';
     
     if (isApiPath) {
-      console.log('❌ API path reached catch-all, returning 404:', path);
+      console.log('❌ API path reached catch-all (API not found):', path);
       res.status(404).json({
         message: `Cannot GET ${path}`,
         error: 'Not Found', 
@@ -61,7 +51,8 @@ export class AppController {
       return;
     }
     
-    console.log('📄 Serving index.html for unknown SPA route:', path);
+    // 모든 비API 경로는 SPA로 처리 (admin 페이지 포함)
+    console.log('📄 Serving index.html for SPA route:', path);
     res.sendFile(join(__dirname, '..', 'public', 'index.html'));
   }
 

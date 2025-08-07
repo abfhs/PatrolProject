@@ -70,25 +70,29 @@ class ApiClient {
   private getApiBaseUrl(): string {
     // Vite 환경 변수 사용 (VITE_ 접두사 필요)
     const envUrl = import.meta.env.VITE_API_BASE_URL;
-    if (envUrl) {
+    if (envUrl && envUrl.trim() !== '') {
       console.log('API Base URL from env:', envUrl);
       return envUrl;
     }
 
-    // 환경 변수가 없는 경우 자동 감지
+    // 환경 변수가 없거나 빈 값인 경우 자동 감지
     if (typeof window !== 'undefined') {
       const { protocol, hostname, port } = window.location;
       
-      // 개발 환경 감지 (localhost, 127.0.0.1, 또는 특정 포트)
-      if (hostname === 'localhost' || hostname === '127.0.0.1' || port === '5173') {
+      // 개발 환경 감지
+      const isDevelopment = 
+        hostname === 'localhost' || 
+        hostname === '127.0.0.1' || 
+        port === '5173' ||  // Vite 개발 서버
+        import.meta.env.DEV; // Vite의 개발 모드 감지
+      
+      if (isDevelopment) {
         console.log('Development environment detected');
         return 'http://localhost:3000';
       }
       
-      // 배포 환경 - 현재 호스트 사용
-      const baseUrl = port && port !== '80' && port !== '443' 
-        ? `${protocol}//${hostname}:${port}` 
-        : `${protocol}//${hostname}`;
+      // 배포 환경 - 현재 호스트의 기본 포트 사용 (백엔드가 80/443 포트에서 실행됨)
+      const baseUrl = `${protocol}//${hostname}`;
       
       console.log('Production environment detected, using:', baseUrl);
       return baseUrl;
