@@ -26,7 +26,6 @@ import { AdminUserSeed } from './database/seeds/admin-user.seed';
       rootPath: join(__dirname, '..', 'public'),
       serveRoot: '/',
       exclude: ['/api*'], // API 경로는 제외
-      renderPath: '*', // SPA를 위한 모든 경로를 index.html로 리다이렉트
     }),
     TypeOrmModule.forRoot({
       //데이터베이스 타입
@@ -44,6 +43,7 @@ import { AdminUserSeed } from './database/seeds/admin-user.seed';
         EmailVerification
       ],
       synchronize: true, // 임시로 테이블 생성을 위해 활성화
+      logging: process.env.NODE_ENV === 'production' ? ['error', 'warn', 'schema'] : true, // 프로덕션에서 로깅 활성화
       ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false, // RDS SSL 연결
     }),
     TypeOrmModule.forFeature([UsersModel]), // AdminUserSeed에서 사용

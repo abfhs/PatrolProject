@@ -10,7 +10,9 @@ export const Header = ({ showMyPageBtn = false }: HeaderProps) => {
 
   return (
     <>
-      <div className={styles.header}>Patrol</div>
+      <Link to="/admin/login" className={styles.header}>
+        Patrol
+      </Link>
       {showMyPageBtn && location.pathname !== '/mypage' && (
         <Link to="/mypage" className={styles.myPageBtn}>
           My Page
