@@ -25,7 +25,11 @@ import { AdminUserSeed } from './database/seeds/admin-user.seed';
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'public'),
       serveRoot: '/',
-      exclude: ['/api*'], // API 경로는 제외
+      exclude: ['/api*'], // API 경로는 제외  
+      serveStaticOptions: {
+        index: false, // 디렉토리 인덱싱 비활성화
+        fallthrough: true, // 파일을 찾을 수 없을 때 다음 미들웨어로 전달
+      }
     }),
     TypeOrmModule.forRoot({
       //데이터베이스 타입

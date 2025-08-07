@@ -224,14 +224,25 @@ class ApiClient {
   }
 
   async getAdminUsers(): Promise<any[]> {
+    const token = localStorage.getItem('adminAccessToken');
+    console.log('🔑 Admin token:', token ? '토큰 있음' : '토큰 없음');
+    
     const response: AxiosResponse<any[]> = await this.client.get(
       '/admin/users',
       {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('adminAccessToken')}`,
+          Authorization: `Bearer ${token}`,
         },
       }
     );
+    
+    console.log('📊 Admin users response:', {
+      status: response.status,
+      statusText: response.statusText,
+      dataLength: response.data?.length,
+      data: response.data
+    });
+    
     return response.data;
   }
 
