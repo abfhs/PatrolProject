@@ -9,7 +9,7 @@ export class AppController {
 
 
   // User SPA routing: serve index.html for client-side routing
-  @Get(['/', '/register', '/main', '/mypage', '/email-verification-success', '/email-verification-error'])
+  @Get(['/', '/login', '/register', '/main', '/mypage', '/email-verification-success', '/email-verification-error'])
   root(@Res() res: Response): void {
     res.sendFile(join(__dirname, '..', 'public', 'index.html'));
   }
