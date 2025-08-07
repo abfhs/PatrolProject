@@ -16,7 +16,7 @@ export class CrawlController {
   }
 
   @Post('find')
-  // @UseGuards(AccessTokenGuard)
+  @UseGuards(AccessTokenGuard)
   findAddress(
     @Body('address') address: string,
   ){
@@ -26,7 +26,7 @@ export class CrawlController {
   }
 
   @Post('findProcess')
-  // @UseGuards(AccessTokenGuard)
+  @UseGuards(AccessTokenGuard)
   findProcess(
     @Body('real_indi_cont_detail') real_indi_cont_detail: string,
     @Body('crypted_id') crypted_id: string,
@@ -40,7 +40,7 @@ export class CrawlController {
   }
 
   @Post('checkProcess')
-  // @UseGuards(AccessTokenGuard)
+  @UseGuards(AccessTokenGuard)
   checkProcess(
     @Body('real_indi_cont_detail') real_indi_cont_detail: string,
     @Body('crypted_id') crypted_id: string,

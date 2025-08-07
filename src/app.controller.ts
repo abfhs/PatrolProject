@@ -11,7 +11,6 @@ export class AppController {
   // User SPA routing: serve index.html for client-side routing
   @Get(['/', '/register', '/main', '/mypage', '/email-verification-success', '/email-verification-error'])
   root(@Res() res: Response): void {
-    console.log('🏠 User SPA route accessed:', res.req.path);
     res.sendFile(join(__dirname, '..', 'public', 'index.html'));
   }
 
@@ -19,11 +18,9 @@ export class AppController {
   @Get('*')
   catchAll(@Res() res: Response, @Next() next: NextFunction): void {
     const path = res.req.path;
-    console.log('🔄 Catch-all route accessed:', path);
     
     // 정적 파일 경로는 ServeStaticModule이 처리하도록 next() 호출
     if (path.startsWith('/assets') || path.includes('.')) {
-      console.log('🗂️ Static file path, passing to ServeStaticModule:', path);
       next(); // 다음 미들웨어(ServeStaticModule)가 처리하도록 함
       return;
     }
@@ -52,7 +49,6 @@ export class AppController {
     }
     
     // 모든 비API 경로는 SPA로 처리 (admin 페이지 포함)
-    console.log('📄 Serving index.html for SPA route:', path);
     res.sendFile(join(__dirname, '..', 'public', 'index.html'));
   }
 

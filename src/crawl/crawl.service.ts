@@ -72,7 +72,7 @@ export class CrawlService {
 
     var totalRecordCount = resultData.paginationInfo.totalRecordCount;
     if(totalRecordCount > 100){
-      throw new BadGatewayException('검색결과가 너무 많습니다') 
+      throw new BadGatewayException('검색결과가 너무 많습니다. 더 정확한 주소를 입력해주시기바랍니다.') 
     }
 
     var addressList = []
@@ -244,12 +244,65 @@ export class CrawlService {
     var resultData = await this.fetchData('post', url, headers, bodyJson);
     
     if(resultData.result != 'SUCC'){
+
+      var msg_cd = resultData.msg_cd;
+      bodyJson = {"nrs_message_cd":msg_cd,"nrs_message_args":""}
+      headers.submissionid = 'sbm_getMessage';
+      url =  this.hostUrl + "/biz/Pr10ComMessageBaseCtrl/getMessage.do?CRYPTED_ID__=" + crypted_id + "&USER_ID__=" + id + "&IS_NMBR_LOGIN__=null&IS_NMBR_LOGIN__=null";
+      resultData = await this.fetchData('post', url, headers, bodyJson);
+
+      try{
+        if(resultData.dataMap.nrs_message_value.indexOf('등기신청사건이 존재') != -1){
+          return {
+            "a101recev_regt_ver": "",
+            "a101appl_year": "",
+            "a101handl_stat_cd": "",
+            "itpurcode": 0,
+            "a101bond_no": "",
+            "juris_regt_nm": "",
+            "a101regt_no": "",
+            "a101rel_charge_cd": "",
+            "a101recev_date": "",
+            "strHistDateTime": "",
+            "al03_suv_rog": "0",
+            "a101bond_return_fee": 0,
+            "a105real_indi_cont": real_indi_cont_detail,
+            "statlin": "",
+            "strRegiPrintGb": "N",
+            "a101regt_ver": "01",
+            "sub_court_name": "",
+            "regt_name": "",
+            "court_name": "",
+            "recev_court_name": "",
+            "a101recev_seq": 0,
+            "e008cd_name": "",
+            "a101recev_regt_no": "",
+            "a105_pin": pin,
+            "a101bond_no_fee": 0,
+            "a101recv_gb": "E",
+            "e033rgs_sel_name": "최근 2개월간 등기정보변경이 없습니다.",
+            "a101appl_cls_cd": "",
+            "a131enr_no_cls_cd_cnt": 0,
+            "recev_sub_court_name": "",
+            "a101recev_no": "",
+            "recev_regt_name": "",
+            "a101input_cls": "",
+            "e033rgs_aim_cd": "",
+            "a105_real_indi_cont_detail": ""
+          };
+        }
+      }catch(e){
+        throw new BadGatewayException('인터넷등기소 사이트 변경, 확인필요')
+      }
+      
       throw new BadGatewayException('인터넷등기소 사이트 변경, 확인필요') 
+    }else{
+      const response = resultData.applCsprCsList[0];
+
+      return response;
     }
 
-    const response = resultData.applCsprCsList[0];
-
-    return response;
+    
   }
 
   /**
@@ -390,12 +443,63 @@ export class CrawlService {
     var resultData = await this.fetchData('post', url, headers, bodyJson);
     
     if(resultData.result != 'SUCC'){
+
+      var msg_cd = resultData.msg_cd;
+      bodyJson = {"nrs_message_cd":msg_cd,"nrs_message_args":""}
+      headers.submissionid = 'sbm_getMessage';
+      url =  this.hostUrl + "/biz/Pr10ComMessageBaseCtrl/getMessage.do?CRYPTED_ID__=" + crypted_id + "&USER_ID__=" + id + "&IS_NMBR_LOGIN__=null&IS_NMBR_LOGIN__=null";
+      resultData = await this.fetchData('post', url, headers, bodyJson);
+
+      try{
+        if(resultData.dataMap.nrs_message_value.indexOf('등기신청사건이 존재') != -1){
+          return {
+            "a101recev_regt_ver": "",
+            "a101appl_year": "",
+            "a101handl_stat_cd": "",
+            "itpurcode": 0,
+            "a101bond_no": "",
+            "juris_regt_nm": "",
+            "a101regt_no": "",
+            "a101rel_charge_cd": "",
+            "a101recev_date": "",
+            "strHistDateTime": "",
+            "al03_suv_rog": "0",
+            "a101bond_return_fee": 0,
+            "a105real_indi_cont": address,
+            "statlin": "",
+            "strRegiPrintGb": "N",
+            "a101regt_ver": "01",
+            "sub_court_name": "",
+            "regt_name": "",
+            "court_name": "",
+            "recev_court_name": "",
+            "a101recev_seq": 0,
+            "e008cd_name": "",
+            "a101recev_regt_no": "",
+            "a105_pin": addressPin,
+            "a101bond_no_fee": 0,
+            "a101recv_gb": "E",
+            "e033rgs_sel_name": "최근 2개월간 등기정보변경이 없습니다.",
+            "a101appl_cls_cd": "",
+            "a131enr_no_cls_cd_cnt": 0,
+            "recev_sub_court_name": "",
+            "a101recev_no": "",
+            "recev_regt_name": "",
+            "a101input_cls": "",
+            "e033rgs_aim_cd": "",
+            "a105_real_indi_cont_detail": ""
+          };
+        }
+      }catch(e){
+        throw new BadGatewayException('인터넷등기소 사이트 변경, 확인필요')
+      }
+      
       throw new BadGatewayException('인터넷등기소 사이트 변경, 확인필요') 
+    }else{
+      const response = resultData.applCsprCsList[0];
+
+      return response;
     }
-
-    const response = resultData.applCsprCsList[0];
-
-    return response;
   }
 
   async fetchData(

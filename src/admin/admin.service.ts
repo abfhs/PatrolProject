@@ -1,9 +1,10 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Between } from 'typeorm';
+import { Repository, Between, DataSource } from 'typeorm';
 import { UsersModel } from '../users/entities/users.entitys';
 import { ScheduleModel } from '../schedule/entities/schedule.entity';
 import { TaskLog } from '../schedule/entities/task-log.entity';
+import { EmailVerification } from '../auth/entities/email-verification.entity';
 import { ScheduleService } from '../schedule/schedule.service';
 
 @Injectable()
@@ -15,6 +16,9 @@ export class AdminService {
     private readonly scheduleRepository: Repository<ScheduleModel>,
     @InjectRepository(TaskLog)
     private readonly taskLogRepository: Repository<TaskLog>,
+    @InjectRepository(EmailVerification)
+    private readonly emailVerificationRepository: Repository<EmailVerification>,
+    private readonly dataSource: DataSource,
     private readonly scheduleService: ScheduleService,
   ) {}
 
@@ -58,7 +62,17 @@ export class AdminService {
       throw new BadRequestException('어드민 사용자는 삭제할 수 없습니다.');
     }
 
-    await this.userRepository.delete(userId);
+    // 트랜잭션을 사용하여 관련 데이터를 안전하게 삭제
+    await this.dataSource.transaction(async manager => {
+      // 1. 이메일 인증 데이터 삭제
+      await manager.delete(EmailVerification, { userId });
+      
+      // 2. 사용자와 관련된 스케줄 삭제 (속성명: email)
+      await manager.delete(ScheduleModel, { email: user.email });
+      
+      // 3. 사용자 삭제
+      await manager.delete(UsersModel, userId);
+    });
   }
 
   // 모든 스케줄 조회
