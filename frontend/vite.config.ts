@@ -2,9 +2,9 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
 // https://vite.dev/config/
-export default defineConfig(() => {
+export default defineConfig(({ mode }) => {
   // 환경변수에서 API URL 가져오기, 기본값은 localhost:3000
-  const apiUrl = process.env.VITE_API_BASE_URL || 'http://localhost:3000';
+  const apiUrl = mode === 'production' ? '' : 'http://localhost:3000';
   
   return {
     plugins: [react()],
