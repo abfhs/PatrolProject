@@ -215,16 +215,17 @@ export const MyPage = () => {
 
   return (
     <Layout>
+      {/* 메인으로 버튼을 Card 밖에 배치 */}
+      <button 
+        onClick={handleBackToMain}
+        className={styles.backButton}
+      >
+        메인으로
+      </button>
+      
       <Card variant="main">
         <div className={styles.header}>
           <h2>마이페이지</h2>
-          <Button 
-            variant="secondary" 
-            onClick={handleBackToMain}
-            className={styles.backButton}
-          >
-            메인으로
-          </Button>
         </div>
 
         {user && (

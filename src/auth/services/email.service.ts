@@ -8,17 +8,13 @@ export class EmailService {
 
   constructor(private readonly configService: ConfigService) {
     this.transporter = nodemailer.createTransport({
-      service: 'gmail', // Gmail 서비스 사용
-      host: this.configService.get<string>('MAIL_HOST'),
-      port: this.configService.get<number>('MAIL_PORT'),
-      secure: false, // true for 465, false for other ports (587)
+      service: 'gmail', // Gmail 서비스 사용 (자동으로 host, port, secure 설정됨)
       auth: {
         user: this.configService.get<string>('MAIL_USER'),
-        pass: this.configService.get<string>('MAIL_PASS'), // Gmail 앱 비밀번호 사용
+        pass: this.configService.get<string>('MAIL_PASS'), // Gmail 앱 비밀번호 필수!
       },
       tls: {
         rejectUnauthorized: false,
-        ciphers: 'SSLv3', // Gmail SMTP 호환성 개선
       },
     });
   }

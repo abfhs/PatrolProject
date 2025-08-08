@@ -109,7 +109,7 @@
 .stepCard {
   position: absolute;
   width: 100%;
-  max-width: 1400px; /* 더 큰 카드 크기 */
+  max-width: 1800px; /* 훨씬 더 큰 카드 크기 */
   padding: 0 2rem;
   opacity: 0;
   transform: translateY(80px) scale(0.9);
@@ -137,14 +137,14 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 4rem; /* 더 넓은 패딩 */
-  gap: 4rem; /* 더 넓은 간격 */
-  min-height: 500px; /* 더 높은 카드 */
+  padding: 5rem; /* 더 넓은 패딩 */
+  gap: 5rem; /* 더 넓은 간격 */
+  min-height: 650px; /* 훨씬 더 높은 카드 */
 }
 
 .textSection {
   flex: 1;
-  max-width: 600px;
+  max-width: 700px; /* 텍스트 섹션 크기 증가 */
 }
 
 .stepTitle {
@@ -163,9 +163,10 @@
 }
 
 .stepDescription {
-  font-size: 1.2rem;
+  font-size: 1.4rem; /* 크기 증가 */
   line-height: 1.8;
-  color: #666;
+  color: #333; /* 더 진한 색상 */
+  font-weight: 500; /* 폰트 굵기 추가 */
   opacity: 0;
   transform: translateY(20px);
   transition: all 0.8s ease 0.6s; /* 더 부드럽고 느린 전환 */
@@ -178,7 +179,7 @@
 
 .imageSection {
   flex: 1;
-  max-width: 600px; /* 이미지 섹션 크기 증가 */
+  max-width: 800px; /* 이미지 섹션 크기 더 증가 */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -187,8 +188,8 @@
 .stepImage {
   width: 100%;
   height: auto;
-  max-width: 500px; /* 이미지 최대 크기 증가 */
-  min-height: 300px; /* 최소 높이 증가 */
+  max-width: 700px; /* 이미지 최대 크기 훨씬 더 증가 */
+  min-height: 400px; /* 최소 높이 더 증가 */
   border-radius: 12px;
   box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
   opacity: 0.3; /* 임시로 반투명하게 해서 이미지 영역 확인 */
@@ -251,7 +252,7 @@
   }
   
   .stepDescription {
-    font-size: 1.1rem;
+    font-size: 1.25rem; /* 모바일에서도 크기 증가 */
   }
   
   .stepImage {
@@ -279,7 +280,7 @@
   }
   
   .stepDescription {
-    font-size: 1rem;
+    font-size: 1.15rem; /* 작은 모바일에서도 크기 증가 */
     line-height: 1.6;
   }
   
@@ -316,7 +317,7 @@
   }
   
   .stepDescription {
-    font-size: 0.9rem;
+    font-size: 1.05rem; /* 가장 작은 모바일에서도 크기 증가 */
   }
   
   .stepImage {

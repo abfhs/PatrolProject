@@ -21,37 +21,37 @@ const STEPS: StepCard[] = [
     id: 0,
     title: "프로젝트 소개",
     description: "Patrol 프로젝트는 등기정보조회를 통해 전월세 보증금을 지키는데 더 빠르게 선조치될 수 있도록 안내드리는 서비스입니다. 등기정보를 등록해주시면 매일 한번씩 등기정보를 조회 해 대출이 발생하거나 소유자가 변경된 경우 메일로 안내드립니다.",
-    image: getImageUrl("/img/example.jpg")
+    image: getImageUrl("/img/example1.png")
   },
   {
     id: 1,
     title: "주소검색",
     description: "부동산 등기부등본이 존재하는 주소를 입력해주세요.",
-    image: getImageUrl("/img/example.jpg")
+    image: getImageUrl("/img/example2.png")
   },
   {
     id: 2,
     title: "주소선택",
     description: "검색된 주소중 맞는 주소를 선택해주세요.",
-    image: getImageUrl("/img/example.jpg")
+    image: getImageUrl("/img/example3.png")
   },
   {
     id: 3,
     title: "소유자명입력",
     description: "부동산 소유자명을 입력해주세요. 등기부등본을 확인하시거나 건축물대장을 확인하시면 전체 소유자명 확인이 가능합니다.",
-    image: getImageUrl("/img/example.jpg")
+    image: getImageUrl("/img/example4.png")
   },
   {
     id: 4,
     title: "등기정보확인",
     description: "검색된 등기정보를 확인해주세요.",
-    image: getImageUrl("/img/example.jpg")
+    image: getImageUrl("/img/example5.png")
   },
   {
     id: 5,
     title: "스케줄등록",
     description: "저장된 등기정보를 스케줄로 등록해주세요. 매일 1번씩 등기정보를 조회해서 변경사항이 발생하면 메일로 알려드립니다.",
-    image: getImageUrl("/img/example.jpg")
+    image: getImageUrl("/img/example6.png")
   }
 ];
 

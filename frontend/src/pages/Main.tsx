@@ -18,6 +18,7 @@ export const Main = () => {
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [checkProcessCompleted, setCheckProcessCompleted] = useState(false);
   const [showSaveOption, setShowSaveOption] = useState(false);
+  const [showWarningModal, setShowWarningModal] = useState(true);
   
   const navigate = useNavigate();
   const { findAddress, findProcess, checkProcess, addressList, processResult, checkProcessResult, isLoading, error } = useCrawl();
@@ -149,8 +150,37 @@ export const Main = () => {
     setName('');
   };
 
+  const handleWarningClose = () => {
+    setShowWarningModal(false);
+  };
+
   return (
     <Layout showMyPageBtn>
+      {/* 경고 모달 */}
+      {showWarningModal && (
+        <div className={styles.warningOverlay}>
+          <div className={styles.warningModal}>
+            <div className={styles.warningHeader}>
+              <h3 className={styles.warningTitle}>경고</h3>
+            </div>
+            <div className={styles.warningContent}>
+              <p className={styles.warningText}>
+                현재 검색되는 등기정보는 실제 인터넷 등기소 스크래핑으로 검색되는 로직임으로 비정상적인 요청 시 접근이 제한될 수 있습니다.
+              </p>
+            </div>
+            <div className={styles.warningActions}>
+              <Button
+                variant="primary"
+                onClick={handleWarningClose}
+                className={styles.warningCloseButton}
+              >
+                확인
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+      
       <Card variant="main">
         <h2>Report Information</h2>
         {!showResults && (
@@ -161,13 +191,13 @@ export const Main = () => {
             >
               <Input
                 type="text"
-                placeholder="Address"
+                placeholder="등기정보 조회 주소검색"
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
                 required
               />
               <Button type="submit" disabled={isLoading}>
-                Submit
+                검색
               </Button>
             </form>
             {showSuccessMessage && (
@@ -223,7 +253,7 @@ export const Main = () => {
             
             {processCompleted && processResult && !checkProcessCompleted && (
               <>
-                <div className={styles.resultHeader}>프로세스 결과</div>
+                <div className={styles.resultHeader}>주소검색 결과</div>
                 <table className={styles.resultTable}>
                   <tbody>
                     <tr>
@@ -249,12 +279,12 @@ export const Main = () => {
             
             {showNameInput && !checkProcessCompleted && (
               <div className={styles.nameInputSection}>
-                <div className={styles.resultHeader}>이름 입력</div>
+                <div className={styles.resultHeader}>부동산 소유자명 입력</div>
                 <div className={styles.nameInputContainer}>
                   <Input
                     variant="inline"
                     type="text"
-                    placeholder="이름을 입력하세요"
+                    placeholder="부동산 소유자명 입력"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     onKeyPress={handleKeyPress}

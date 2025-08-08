@@ -23,7 +23,7 @@ export const useAuth = () => {
       localStorage.setItem('user', JSON.stringify(response.user));
       document.cookie = `refreshToken=${response.refreshToken}; path=/; max-age=${7*24*60*60}; Secure`;
       
-      // Navigate to main page
+      // Navigate to main page only on success
       navigate('/main');
     } catch (error: unknown) {
       console.error('Login error:', error);
@@ -41,7 +41,8 @@ export const useAuth = () => {
       }
       
       setError(errorMessage);
-      throw error;
+      // 에러 발생 시 로그인 페이지에 머무르도록 navigate 제거
+      // throw error도 제거하여 Login 컴포넌트에서 추가 처리 방지
     } finally {
       setIsLoading(false);
     }

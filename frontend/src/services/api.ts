@@ -46,11 +46,11 @@ class ApiClient {
       (response) => response,
       (error) => {
         if (error.response?.status === 401) {
-          // Handle unauthorized - only redirect for non-admin pages
+          // Handle unauthorized - only redirect for non-login pages
           const currentPath = window.location.pathname;
           
-          // Admin 로그인 페이지에서는 리다이렉트하지 않음
-          if (!currentPath.startsWith('/admin/login')) {
+          // 로그인 페이지들에서는 리다이렉트하지 않음 (에러 메시지를 보여줘야 함)
+          if (!currentPath.startsWith('/admin/login') && currentPath !== '/login') {
             localStorage.removeItem('accessToken');
             localStorage.removeItem('adminAccessToken');
             

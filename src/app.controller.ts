@@ -9,7 +9,11 @@ export class AppController {
 
 
   // User SPA routing: serve index.html for client-side routing
-  @Get(['/', '/login', '/register', '/main', '/mypage', '/email-verification-success', '/email-verification-error'])
+  @Get([
+    '/', '/login', '/register', '/main', '/mypage', 
+    '/email-verification-success', '/email-verification-error',
+    '/admin/login', '/admin/dashboard', '/admin/users', '/admin/schedules', '/admin/logs'
+  ])
   root(@Res() res: Response): void {
     res.sendFile(join(__dirname, '..', 'public', 'index.html'));
   }
@@ -26,17 +30,17 @@ export class AppController {
     }
     
     // API 경로가 catch-all에 도달했다면 해당 API가 존재하지 않음을 의미
+    // 단, /admin/login, /admin/dashboard 등은 SPA 경로이므로 제외
     const isApiPath = 
-      path.startsWith('/auth/') ||
+      (path.startsWith('/auth/') && !path.startsWith('/admin/')) ||
       path.startsWith('/users/') ||
       path.startsWith('/crawl/') || 
       path.startsWith('/schedule/') ||
-      path.startsWith('/admin/') ||
+      (path.startsWith('/admin/') && !path.match(/^\/admin\/(login|dashboard|users|schedules|logs)$/)) ||
       path === '/auth' ||
       path === '/users' ||
       path === '/crawl' ||
-      path === '/schedule' ||
-      path === '/admin';
+      path === '/schedule';
     
     if (isApiPath) {
       console.log('❌ API path reached catch-all (API not found):', path);

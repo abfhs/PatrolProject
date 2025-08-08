@@ -13,11 +13,8 @@ export const Login = () => {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     
-    try {
-      await login({ email, password });
-    } catch (error) {
-      console.log("에러발생!! :" + error);
-    }
+    // useAuth에서 에러 처리를 모두 담당하므로 try-catch 불필요
+    await login({ email, password });
   };
 
   return (
