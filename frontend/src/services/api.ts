@@ -349,6 +349,33 @@ class ApiClient {
     }> = await this.client.get('/auth/verification-status');
     return response.data;
   }
+
+  // Password reset methods
+  async requestPasswordReset(email: string): Promise<{ message: string }> {
+    const response: AxiosResponse<{ message: string }> = await this.client.post(
+      '/auth/request-password-reset',
+      { email },
+      { skipAuthInterceptor: true }
+    );
+    return response.data;
+  }
+
+  async verifyResetToken(token: string): Promise<{ isValid: boolean; userId?: number }> {
+    const response: AxiosResponse<{ isValid: boolean; userId?: number }> = await this.client.get(
+      `/auth/verify-reset-token/${token}`,
+      { skipAuthInterceptor: true }
+    );
+    return response.data;
+  }
+
+  async resetPassword(token: string, password: string): Promise<{ message: string; user?: { email: string; nickname: string } }> {
+    const response: AxiosResponse<{ message: string; user?: { email: string; nickname: string } }> = await this.client.post(
+      '/auth/reset-password',
+      { token, password },
+      { skipAuthInterceptor: true }
+    );
+    return response.data;
+  }
 }
 
 export const apiClient = new ApiClient();

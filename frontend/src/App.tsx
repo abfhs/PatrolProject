@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Landing } from './pages/Landing';
-import { Login, Register, Main, MyPage, EmailVerificationSuccess, EmailVerificationError } from './pages';
+import { Login, Register, Main, MyPage, EmailVerificationSuccess, EmailVerificationError, ResetPassword, ResetPasswordConfirm } from './pages';
 import { AdminLogin } from './pages/admin/AdminLogin';
 import { AdminDashboard } from './pages/admin/AdminDashboard';
 import { AdminUsers } from './pages/admin/AdminUsers';
@@ -21,6 +21,10 @@ function App() {
         {/* Email Verification Routes */}
         <Route path="/email-verification-success" element={<EmailVerificationSuccess />} />
         <Route path="/email-verification-error" element={<EmailVerificationError />} />
+        
+        {/* Password Reset Routes */}
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/reset-password-confirm" element={<ResetPasswordConfirm />} />
         
         {/* Admin Routes */}
         <Route path="/admin/login" element={<AdminLogin />} />

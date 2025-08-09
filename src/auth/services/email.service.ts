@@ -418,6 +418,25 @@ export class EmailService {
     return `${dateString.slice(0, 4)}-${dateString.slice(4, 6)}-${dateString.slice(6, 8)}`;
   }
 
+  // 범용 이메일 발송 메서드
+  async sendEmail(to: string, subject: string, html: string): Promise<boolean> {
+    try {
+      const mailOptions = {
+        from: `"Patrol Service" <${this.configService.get<string>('MAIL_FROM')}>`,
+        to,
+        subject,
+        html,
+      };
+
+      const result = await this.transporter.sendMail(mailOptions);
+      console.log('이메일 발송 성공:', { to, subject, messageId: result.messageId });
+      return true;
+    } catch (error) {
+      console.error('이메일 발송 실패:', error);
+      return false;
+    }
+  }
+
   // 연결 테스트 메서드
   async testConnection(): Promise<boolean> {
     try {

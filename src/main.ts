@@ -15,7 +15,12 @@ async function bootstrap() {
     });
   } else {
     app.enableCors({
-      origin: 'http://127.0.0.1:3000', // 개발 환경용
+      origin: [
+        'http://127.0.0.1:3000',
+        'http://localhost:3000',
+        'http://127.0.0.1:5173',
+        'http://localhost:5173'
+      ], // 개발 환경용 - 다양한 localhost 형태 허용
       methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
       allowedHeaders: 'Content-Type, Authorization',
       credentials: true,

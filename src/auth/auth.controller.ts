@@ -1,7 +1,8 @@
 import { Controller, Post, Body, Headers, UseGuards, Request, Res, Get, Param} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { EmailVerificationService } from './services/email-verification.service';
-import { MaxLengthPipe, MinLengthPipe, PasswordPipe } from './pipe/password.pipe';
+import { PasswordResetService } from './services/password-reset.service';
+import { MaxLengthPipe, MinLengthPipe, PasswordPipe, FlexiblePasswordPipe } from './pipe/password.pipe';
 import { BasicTokenGuard } from './guard/basic-token.guard';
 import { AccessTokenGuard, RefreshTokenGuard } from './guard/bearer-token.guard';
 import { Response } from 'express';
@@ -11,6 +12,7 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly emailVerificationService: EmailVerificationService,
+    private readonly passwordResetService: PasswordResetService,
   ) {}
 
   @Post('token/access')
@@ -107,5 +109,23 @@ export class AuthController {
   async logout(@Request() req) {
     const userId = req.user.id;
     return this.authService.logout(userId);
+  }
+
+  @Post('request-password-reset')
+  async requestPasswordReset(@Body('email') email: string) {
+    return this.passwordResetService.requestPasswordReset(email);
+  }
+
+  @Get('verify-reset-token/:token')
+  async verifyResetToken(@Param('token') token: string) {
+    return this.passwordResetService.verifyPasswordResetToken(token);
+  }
+
+  @Post('reset-password')
+  async resetPassword(
+    @Body('token') token: string,
+    @Body('password', FlexiblePasswordPipe) password: string,
+  ) {
+    return this.passwordResetService.resetPassword(token, password);
   }
 }

@@ -11,6 +11,7 @@ import { UsersModel } from './users/entities/users.entitys';
 import { ScheduleModel } from './schedule/entities/schedule.entity';
 import { TaskLog } from './schedule/entities/task-log.entity';
 import { EmailVerification } from './auth/entities/email-verification.entity';
+import { PasswordResetToken } from './auth/entities/password-reset.entity';
 import { CrawlModule } from './crawl/crawl.module';
 import { ScheduleModule } from './schedule/schedule.module';
 import { AdminModule } from './admin/admin.module';
@@ -45,7 +46,8 @@ import { SpaModule } from './spa/spa.module';
         UsersModel,
         ScheduleModel,
         TaskLog,
-        EmailVerification
+        EmailVerification,
+        PasswordResetToken
       ],
       synchronize: true, // 임시로 테이블 생성을 위해 활성화
       logging: process.env.NODE_ENV === 'production' ? ['error', 'warn', 'schema'] : true, // 프로덕션에서 로깅 활성화

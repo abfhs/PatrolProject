@@ -110,4 +110,14 @@ export class UsersService {
         return updatedUser;
     }
 
+    async updateUserPassword(userId: number, hashedPassword: string): Promise<UsersModel> {
+        const user = await this.getUserById(userId);
+        
+        user.password = hashedPassword;
+        const updatedUser = await this.userRepository.save(user);
+
+        console.log(`✅ 사용자 비밀번호 업데이트: ${user.email}`);
+        return updatedUser;
+    }
+
 }

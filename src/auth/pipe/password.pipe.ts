@@ -40,3 +40,27 @@ export class MinLengthPipe implements PipeTransform{
     }
 }
 
+@Injectable()
+export class FlexiblePasswordPipe implements PipeTransform {
+    transform(value: any, metadata: ArgumentMetadata) {
+        const password = value.toString();
+        
+        // 5가지 조건 검사
+        const conditions = [
+            password.length >= 8, // 8자 이상
+            /(?=.*[a-z])/.test(password), // 소문자 포함
+            /(?=.*[A-Z])/.test(password), // 대문자 포함
+            /(?=.*\d)/.test(password), // 숫자 포함
+            /(?=.*[!@#$%^&*(),.?":{}|<>])/.test(password), // 특수문자 포함
+        ];
+        
+        const satisfiedCount = conditions.filter(Boolean).length;
+        
+        if (satisfiedCount < 3) {
+            throw new BadRequestException('비밀번호는 다음 조건 중 최소 3가지 이상을 만족해야 합니다: 8자 이상, 소문자 포함, 대문자 포함, 숫자 포함, 특수문자 포함');
+        }
+        
+        return password;
+    }
+}
+
