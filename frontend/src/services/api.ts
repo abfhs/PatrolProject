@@ -131,6 +131,13 @@ class ApiClient {
     return response.data;
   }
 
+  async logout(): Promise<{ message: string }> {
+    const response: AxiosResponse<{ message: string }> = await this.client.post(
+      '/auth/logout'
+    );
+    return response.data;
+  }
+
   // Crawl methods
   async findAddress(request: FindAddressRequest): Promise<FindAddressResponse> {
     const response: AxiosResponse<FindAddressResponse> = await this.client.post(

@@ -101,4 +101,11 @@ export class AuthController {
     const userId = req.user.id;
     return this.emailVerificationService.getVerificationStatus(userId);
   }
+
+  @Post('logout')
+  @UseGuards(AccessTokenGuard)
+  async logout(@Request() req) {
+    const userId = req.user.id;
+    return this.authService.logout(userId);
+  }
 }

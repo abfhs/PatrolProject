@@ -52,19 +52,44 @@
   position: absolute;
   top: 35px;
   right: 40px;
-  padding: 10px 20px;
+  padding: 12px 24px;
   background: transparent;
   color: var(--primary-color);
   border: 1px solid var(--primary-color);
   border-radius: 10px;
   text-decoration: none;
   font-weight: 600;
+  font-size: 0.95rem;
   transition: all 0.3s ease;
   z-index: 10;
 }
 
 .myPageBtn:hover {
-  background: rgba(255, 193, 7, 0.1);
+  background: #ffc107;
+  color: #000;
+  border-color: #ffc107;
+}
+
+.logoutBtn {
+  position: absolute;
+  top: 35px;
+  right: 160px;
+  padding: 12px 24px;
+  background: transparent;
+  color: var(--primary-color);
+  border: 1px solid var(--primary-color);
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  z-index: 10;
+  cursor: pointer;
+}
+
+.logoutBtn:hover {
+  background: #ffc107;
+  color: #000;
+  border-color: #ffc107;
 }
 
 /* 모바일 반응형 */
@@ -85,7 +110,14 @@
   .myPageBtn {
     top: 25px;
     right: 20px;
-    padding: 8px 16px;
+    padding: 10px 20px;
+    font-size: 0.9rem;
+  }
+
+  .logoutBtn {
+    top: 25px;
+    right: 130px;
+    padding: 10px 20px;
     font-size: 0.9rem;
   }
 }
@@ -107,7 +139,14 @@
   .myPageBtn {
     top: 20px;
     right: 15px;
-    padding: 6px 12px;
+    padding: 8px 16px;
+    font-size: 0.85rem;
+  }
+
+  .logoutBtn {
+    top: 20px;
+    right: 110px;
+    padding: 8px 16px;
     font-size: 0.85rem;
   }
 }

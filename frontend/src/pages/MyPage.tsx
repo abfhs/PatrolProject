@@ -214,7 +214,7 @@ export const MyPage = () => {
   };
 
   return (
-    <Layout>
+    <Layout showLogoutBtn>
       {/* 메인으로 버튼을 Card 밖에 배치 */}
       <button 
         onClick={handleBackToMain}

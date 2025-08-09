@@ -6,12 +6,13 @@ interface LayoutProps {
   children: ReactNode;
   showMyPageBtn?: boolean;
   showLoginBtn?: boolean;
+  showLogoutBtn?: boolean;
 }
 
-export const Layout = ({ children, showMyPageBtn, showLoginBtn }: LayoutProps) => {
+export const Layout = ({ children, showMyPageBtn, showLoginBtn, showLogoutBtn }: LayoutProps) => {
   return (
     <div className={styles.layout}>
-      <Header showMyPageBtn={showMyPageBtn} showLoginBtn={showLoginBtn} />
+      <Header showMyPageBtn={showMyPageBtn} showLoginBtn={showLoginBtn} showLogoutBtn={showLogoutBtn} />
       <main className={styles.main}>
         {children}
       </main>

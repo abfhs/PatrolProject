@@ -155,7 +155,7 @@ export const Main = () => {
   };
 
   return (
-    <Layout showMyPageBtn>
+    <Layout showMyPageBtn showLogoutBtn>
       {/* 경고 모달 */}
       {showWarningModal && (
         <div className={styles.warningOverlay}>

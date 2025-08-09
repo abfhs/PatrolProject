@@ -226,4 +226,10 @@ export class AuthService {
 
         return this.loginUser(newUser);
     }
+
+    async logout(userId: number) {
+        return {
+            message: '성공적으로 로그아웃되었습니다.'
+        };
+    }
 }
