@@ -5,7 +5,7 @@ WORKDIR /app/frontend
 
 # Copy frontend package files
 COPY frontend/package*.json ./
-RUN npm ci
+RUN npm install
 
 # Copy frontend source and build
 COPY frontend/ ./
@@ -18,7 +18,7 @@ WORKDIR /app
 
 # Copy backend package files
 COPY package*.json ./
-RUN npm ci
+RUN npm install
 
 # Copy backend source
 COPY . .
@@ -41,7 +41,7 @@ RUN addgroup -g 1001 -S nodejs && \
 
 # Copy package files and install production dependencies only
 COPY --from=backend-builder --chown=nestjs:nodejs /app/package*.json ./
-RUN npm ci --omit=dev
+RUN npm install --omit=dev
 
 # Copy built application
 COPY --from=backend-builder --chown=nestjs:nodejs /app/dist ./dist
