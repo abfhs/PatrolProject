@@ -65,4 +65,58 @@ DEPLOYMENT.md
 DEBUG.md
 
 # Interview and Portfolio files (private)
-INTERVIEW_PORTFOLIO.md
+INTERVIEW_PORTFOLIO.md 
+PORTFOLIO.md
+document/
+
+# VSCode debug/cache files
+.vscode/chrome_debug_data/
+.vscode/chrome_production_debug/
+.vscode/*.tmp
+.vscode/settings.json
+
+# Package manager files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Environment files
+.env*
+!.env.example
+
+# Temporary files and caches
+*.tmp
+*.cache
+*~
+*.swp
+*.swo
+*.bak
+.sass-cache/
+.npm/
+.eslintcache
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+.Trash-*/
+
+# Editor backups
+*~
+.*.sw[a-z]
+*.un~
+
+# IDE settings (except essential ones)
+.idea/
+*.iml
+*.ipr
+*.iws

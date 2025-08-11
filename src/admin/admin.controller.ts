@@ -10,6 +10,7 @@ import {
 } from '@nestjs/common';
 import { AdminService } from './admin.service';
 import { AdminGuard } from '../auth/guard/admin.guard';
+import { SuperAdminGuard } from '../auth/guard/super-admin.guard';
 import { UsersModel } from '../users/entities/users.entitys';
 import { ScheduleModel } from '../schedule/entities/schedule.entity';
 
@@ -30,8 +31,9 @@ export class AdminController {
     return await this.adminService.getAllUsers();
   }
 
-  // 사용자 삭제
+  // 사용자 삭제 (최고 관리자만 가능)
   @Delete('users/:id')
+  @UseGuards(SuperAdminGuard)
   async deleteUser(@Param('id') id: string): Promise<void> {
     const userId = parseInt(id, 10);
     return await this.adminService.deleteUser(userId);
@@ -50,8 +52,9 @@ export class AdminController {
     return await this.adminService.deleteSchedule(scheduleId);
   }
 
-  // 스케줄러 수동 실행
+  // 스케줄러 수동 실행 (최고 관리자만 가능)
   @Post('scheduler/run')
+  @UseGuards(SuperAdminGuard)
   async runScheduler(): Promise<{ message: string }> {
     return await this.adminService.runScheduler();
   }

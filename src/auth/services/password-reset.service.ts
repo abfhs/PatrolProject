@@ -106,6 +106,8 @@ export class PasswordResetService {
   private async sendPasswordResetEmail(user: UsersModel, token: string): Promise<void> {
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
     const resetLink = `${frontendUrl}/reset-password-confirm?token=${token}`;
+    
+    console.log(`🔗 비밀번호 재설정 링크 생성: ${resetLink}`);
 
     const subject = '[Patrol] 비밀번호 재설정 요청';
     const html = `

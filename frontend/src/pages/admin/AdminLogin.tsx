@@ -21,8 +21,8 @@ export const AdminLogin = () => {
     try {
       const response = await apiClient.login(credentials);
       
-      // 어드민 권한 확인
-      const isAdmin = response.user.role === 'ADMIN';
+      // 어드민 권한 확인 (ADMIN 또는 ADMIN_SUB)
+      const isAdmin = response.user.role === 'ADMIN' || response.user.role === 'ADMIN_SUB';
       
       if (!isAdmin) {
         setError('관리자 권한이 필요합니다.');

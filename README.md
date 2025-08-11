@@ -172,7 +172,7 @@ patrol/
 - `AWS_ACCESS_KEY_ID`: AWS 액세스 키
 - `AWS_SECRET_ACCESS_KEY`: AWS 시크릿 키
 - `EC2_PRIVATE_KEY`: EC2 SSH 접속용 프라이빗 키 (.pem 파일 내용)
-- `EC2_HOST`: EC2 인스턴스 퍼블릭 IP (예: `54.180.132.32`)
+- `EC2_HOST`: EC2 인스턴스 퍼블릭 IP (예: `203.178.45.67`)
 - `EC2_USERNAME`: EC2 사용자명 (일반적으로 `ec2-user`)
 
 ##### 데이터베이스
