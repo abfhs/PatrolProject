@@ -186,8 +186,8 @@ jobs:
               -e PROXY_URL="${{ secrets.PROXY_URL }}" \
               -e SITE_ID="${{ secrets.SITE_ID }}" \
               -e SITE_PASSWORD="${{ secrets.SITE_PASSWORD }}" \
-              -e BASE_URL="http://${{ secrets.EC2_HOST }}" \
-              -e FRONTEND_URL="http://${{ secrets.EC2_HOST }}" \
+              -e BASE_URL="http://${{ secrets.DOMAIN_NAME }}" \
+              -e FRONTEND_URL="http://${{ secrets.DOMAIN_NAME }}" \
               "$ECR_IMAGE"
             
             echo "=== 컨테이너 상태 확인 ==="
