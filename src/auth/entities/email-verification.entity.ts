@@ -7,7 +7,7 @@ export class EmailVerification extends BaseModel {
   @Column()
   userId: number;
 
-  @ManyToOne(() => UsersModel)
+  @ManyToOne(() => UsersModel, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'userId' })
   user: UsersModel;
 

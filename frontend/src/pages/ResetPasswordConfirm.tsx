@@ -51,7 +51,7 @@ export const ResetPasswordConfirm = () => {
   const validatePassword = (password: string): string | null => {
     // 5가지 조건 검사
     const conditions = [
-      password.length >= 8, // 8자 이상
+      password.length >= 6 && password.length <= 12, // 6-12자
       /(?=.*[a-z])/.test(password), // 소문자 포함
       /(?=.*[A-Z])/.test(password), // 대문자 포함
       /(?=.*\d)/.test(password), // 숫자 포함
@@ -69,7 +69,7 @@ export const ResetPasswordConfirm = () => {
 
   // 각 조건 체크 함수
   const getPasswordConditions = (password: string) => ({
-    length: password.length >= 8,
+    length: password.length >= 6 && password.length <= 12,
     lowercase: /(?=.*[a-z])/.test(password),
     uppercase: /(?=.*[A-Z])/.test(password),
     number: /(?=.*\d)/.test(password),
@@ -222,7 +222,7 @@ export const ResetPasswordConfirm = () => {
               </p>
               <ul className={styles.hintList}>
                 <li className={getPasswordConditions(password).length ? styles.valid : ''}>
-                  8자 이상
+                  6자 이상 12자 이하
                 </li>
                 <li className={getPasswordConditions(password).lowercase ? styles.valid : ''}>
                   소문자 포함

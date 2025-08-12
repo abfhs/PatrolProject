@@ -232,4 +232,17 @@ export class AuthService {
             message: '성공적으로 로그아웃되었습니다.'
         };
     }
+
+    async withdrawUser(userId: number) {
+        const user = await this.usersService.getUserById(userId);
+        if (!user) {
+            throw new UnauthorizedException('사용자를 찾을 수 없습니다.');
+        }
+
+        await this.usersService.deleteUser(userId);
+        
+        return {
+            message: '회원 탈퇴가 완료되었습니다.'
+        };
+    }
 }

@@ -120,4 +120,36 @@ export class UsersService {
         return updatedUser;
     }
 
+    async deleteUser(userId: number): Promise<void> {
+        const user = await this.getUserById(userId);
+        
+        // CASCADE 옵션으로 관련 데이터 자동 삭제됨
+        await this.userRepository.remove(user);
+        
+        console.log(`✅ 사용자 삭제: ${user.email}`);
+    }
+
+    async deleteUserResult(email: string, resultId: number): Promise<void> {
+        const user = await this.getUserByEmail(email);
+        if (!user) {
+            throw new BadGatewayException('사용자를 찾을 수 없습니다.');
+        }
+
+        if (!user.result || !Array.isArray(user.result)) {
+            throw new BadGatewayException('저장된 결과가 없습니다.');
+        }
+
+        // resultId는 실제로는 배열 인덱스입니다
+        if (resultId < 0 || resultId >= user.result.length) {
+            throw new BadGatewayException('유효하지 않은 결과 ID입니다.');
+        }
+
+        // 배열에서 해당 인덱스의 결과 제거
+        user.result.splice(resultId, 1);
+        
+        await this.userRepository.save(user);
+        
+        console.log(`✅ 사용자 결과 삭제: ${email}, 인덱스: ${resultId}`);
+    }
+
 }

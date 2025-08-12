@@ -144,6 +144,18 @@ export const MyPage = () => {
     );
   };
 
+  // 해당 result에 매칭되는 스케줄 찾기
+  const getMatchingSchedule = (result: any) => {
+    if (!userSchedules || userSchedules.length === 0) return null;
+    
+    const addressPin = result.a105_pin;
+    const address = result.a105real_indi_cont;
+    
+    return userSchedules.find(schedule => 
+      schedule.addressPin === addressPin && schedule.address === address
+    );
+  };
+
   const handleBackToMain = () => {
     navigate('/main');
   };
@@ -213,6 +225,84 @@ export const MyPage = () => {
     }
   };
 
+  const handleUnregisterSchedule = async (scheduleId: number) => {
+    if (!confirm('이 등기정보를 스케줄에서 해제하시겠습니까?')) {
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      await apiClient.deleteSchedule(scheduleId);
+      
+      // 스케줄 해제 후 사용자 스케줄 목록 다시 로드
+      if (user?.email) {
+        await loadUserSchedules(user.email);
+      }
+      
+      alert('스케줄에서 해제되었습니다.');
+    } catch (error: any) {
+      console.error('스케줄 해제 오류:', error);
+      alert(error.response?.data?.message || '스케줄 해제에 실패했습니다.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDeleteResult = async (index: number) => {
+    if (!user?.email) {
+      alert('로그인 정보가 없습니다.');
+      return;
+    }
+
+    if (!confirm('이 등기정보를 삭제하시겠습니까?')) {
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      await apiClient.deleteUserResult(user.email, index);
+      
+      // 삭제 후 목록 다시 로드
+      await loadSavedResults(user.email);
+      
+      alert('등기정보가 삭제되었습니다.');
+    } catch (error: any) {
+      console.error('등기정보 삭제 오류:', error);
+      alert(error.response?.data?.message || '등기정보 삭제에 실패했습니다.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleWithdraw = async () => {
+    if (!confirm('정말로 회원 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
+      return;
+    }
+
+    const confirmText = prompt('회원 탈퇴를 진행하려면 "탈퇴"를 입력해주세요.');
+    if (confirmText !== '탈퇴') {
+      alert('입력이 일치하지 않습니다.');
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      await apiClient.withdrawUser();
+      
+      // 로컬 스토리지 정리
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('user');
+      
+      alert('회원 탈퇴가 완료되었습니다.');
+      navigate('/');
+    } catch (error: any) {
+      console.error('회원 탈퇴 오류:', error);
+      alert(error.response?.data?.message || '회원 탈퇴에 실패했습니다.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <Layout showLogoutBtn>
       {/* 메인으로 버튼을 Card 밖에 배치 */}
@@ -248,6 +338,17 @@ export const MyPage = () => {
                   {verificationStatus?.isVerified ? '✅ 인증 완료' : '❌ 이메일 인증 필요'}
                 </span>
               </div>
+              <div className={styles.userDetail}>
+                <span className={styles.label}></span>
+                <Button
+                  variant="secondary"
+                  size="small"
+                  onClick={handleWithdraw}
+                  className={styles.withdrawButton}
+                >
+                  회원 탈퇴
+                </Button>
+              </div>
             </div>
           </div>
         )}
@@ -272,21 +373,48 @@ export const MyPage = () => {
                         {formatTimestamp(result.timestamp)}
                       </span>
                     </div>
-                    {isRegistered ? (
-                      <div className={styles.registeredBadge}>
-                        ✅ 스케줄 등록됨
-                      </div>
-                    ) : (
+                    <div className={styles.resultActions}>
+                      {isRegistered ? (
+                        <>
+                          <div className={styles.registeredBadge}>
+                            ✅ 스케줄 등록됨
+                          </div>
+                          <Button
+                            variant="secondary"
+                            size="small"
+                            onClick={() => {
+                              const schedule = getMatchingSchedule(result);
+                              if (schedule) {
+                                handleUnregisterSchedule(schedule.id);
+                              }
+                            }}
+                            disabled={isLoading}
+                            className={styles.unregisterButton}
+                          >
+                            스케줄 해제
+                          </Button>
+                        </>
+                      ) : (
+                        <Button
+                          variant="primary"
+                          size="small"
+                          onClick={() => handleScheduleRegister(result)}
+                          disabled={isLoading}
+                          className={styles.scheduleButton}
+                        >
+                          스케줄 등록하기
+                        </Button>
+                      )}
                       <Button
-                        variant="primary"
+                        variant="secondary"
                         size="small"
-                        onClick={() => handleScheduleRegister(result)}
+                        onClick={() => handleDeleteResult(index)}
                         disabled={isLoading}
-                        className={styles.scheduleButton}
+                        className={styles.deleteButton}
                       >
-                        스케줄 등록하기
+                        삭제
                       </Button>
-                    )}
+                    </div>
                   </div>
                   
                   <table className={styles.resultTable}>

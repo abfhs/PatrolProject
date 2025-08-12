@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import type { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Layout } from '../components/layout/Layout';
-import { Card, Button, Input, Loading } from '../components/ui';
+import { Card, Button, Input, CrawlLoading } from '../components/ui';
 import { useCrawl } from '../hooks/useCrawl';
 import { apiClient } from '../services/api';
 import type { AddressItem } from '../types/api';
@@ -86,7 +86,6 @@ export const Main = () => {
       await findProcess(addressData);
       setShowNameInput(true);
       setProcessCompleted(true);
-      alert('프로세스 크롤링이 완료되었습니다.');
     } catch {
       // Error handling is done in the hook
     }
@@ -343,7 +342,7 @@ export const Main = () => {
           </div>
         )}
       </Card>
-      <Loading show={isLoading} />
+      <CrawlLoading show={isLoading} />
     </Layout>
   );
 };

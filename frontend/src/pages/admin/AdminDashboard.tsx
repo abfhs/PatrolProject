@@ -119,13 +119,6 @@ export const AdminDashboard = () => {
               <span>로그 확인</span>
             </button>
             
-            <button 
-              className={styles.actionButton}
-              onClick={() => {/* 수동 스케줄 실행 */}}
-            >
-              <span className={styles.actionIcon}>▶️</span>
-              <span>수동 실행</span>
-            </button>
           </div>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Headers, UseGuards, Request, Res, Get, Param} from '@nestjs/common';
+import { Controller, Post, Body, Headers, UseGuards, Request, Res, Get, Param, Delete} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { EmailVerificationService } from './services/email-verification.service';
 import { PasswordResetService } from './services/password-reset.service';
@@ -64,7 +64,7 @@ export class AuthController {
   postRegisterEmail(
     @Body('nickname') nickname: string,
     @Body('email') email: string,
-    @Body('password', new MaxLengthPipe(8, '비밀번호'), new MinLengthPipe(3)) password: string,){
+    @Body('password', new MaxLengthPipe(12, '비밀번호'), new MinLengthPipe(6)) password: string,){
     return this.authService.registerWithEmail({
       nickname,
       email,
@@ -87,11 +87,11 @@ export class AuthController {
       const result = await this.emailVerificationService.verifyEmail(token);
       
       // 인증 성공 시 프론트엔드로 리다이렉트 (성공 페이지)
-      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+      const frontendUrl = process.env.FRONTEND_URL || process.env.DOMAIN_NAME || 'http://localhost:5173';
       return res.redirect(`${frontendUrl}/email-verification-success?message=${encodeURIComponent(result.message)}`);
     } catch (error) {
       // 인증 실패 시 프론트엔드로 리다이렉트 (실패 페이지)
-      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+      const frontendUrl = process.env.FRONTEND_URL || process.env.DOMAIN_NAME || 'http://localhost:5173';
       return res.redirect(`${frontendUrl}/email-verification-error?error=${encodeURIComponent(error.message)}`);
     }
   }
@@ -127,5 +127,12 @@ export class AuthController {
     @Body('password', FlexiblePasswordPipe) password: string,
   ) {
     return this.passwordResetService.resetPassword(token, password);
+  }
+
+  @Delete('withdraw')
+  @UseGuards(AccessTokenGuard)
+  async withdrawUser(@Request() req) {
+    const userId = req.user.id;
+    return this.authService.withdrawUser(userId);
   }
 }

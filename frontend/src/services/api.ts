@@ -138,6 +138,17 @@ class ApiClient {
     return response.data;
   }
 
+  async withdrawUser(): Promise<{ message: string }> {
+    const response: AxiosResponse<{ message: string }> = await this.client.delete(
+      '/auth/withdraw'
+    );
+    return response.data;
+  }
+
+  async deleteUserResult(email: string, resultId: number): Promise<void> {
+    await this.client.delete(`/users/results/${email}/${resultId}`);
+  }
+
   // Crawl methods
   async findAddress(request: FindAddressRequest): Promise<FindAddressResponse> {
     const response: AxiosResponse<FindAddressResponse> = await this.client.post(

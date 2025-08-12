@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { ConfigService } from '@nestjs/config';
 import { PasswordResetToken } from '../entities/password-reset.entity';
 import { UsersModel } from 'src/users/entities/users.entitys';
 import { UsersService } from 'src/users/users.service';
@@ -16,6 +17,7 @@ export class PasswordResetService {
     private readonly passwordResetTokenRepository: Repository<PasswordResetToken>,
     private readonly usersService: UsersService,
     private readonly emailService: EmailService,
+    private readonly configService: ConfigService,
   ) {}
 
   async requestPasswordReset(email: string): Promise<{ message: string }> {
@@ -104,7 +106,7 @@ export class PasswordResetService {
   }
 
   private async sendPasswordResetEmail(user: UsersModel, token: string): Promise<void> {
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const frontendUrl = this.configService.get<string>('FRONTEND_URL') || this.configService.get<string>('DOMAIN_NAME') || 'http://localhost:5173';
     const resetLink = `${frontendUrl}/reset-password-confirm?token=${token}`;
     
     console.log(`🔗 비밀번호 재설정 링크 생성: ${resetLink}`);

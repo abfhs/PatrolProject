@@ -93,9 +93,9 @@ export class EmailService {
 
   private getBaseUrl(): string {
     // 이메일 인증 링크는 백엔드 API로 가야 함
-    const baseUrl = this.configService.get<string>('BASE_URL');
+    const baseUrl = this.configService.get<string>('BASE_URL') || this.configService.get<string>('DOMAIN_NAME');
     if (!baseUrl) {
-      console.warn('⚠️ BASE_URL 환경변수가 설정되지 않았습니다. 기본값을 사용합니다.');
+      console.warn('⚠️ BASE_URL/DOMAIN_NAME 환경변수가 설정되지 않았습니다. 기본값을 사용합니다.');
       return 'http://localhost:3000';
     }
     return baseUrl;
